@@ -1,41 +1,34 @@
 <!DOCTYPE html><html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>View Repository</title><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>View Repository</title><style>
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-html, body {
-    width: 100%;
-    min-height: 100%;
+body {
+    min-height: 100vh;
     background: #08080b;
     color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-    display: flex;
-    justify-content: center;
-    padding: 30px 16px;
+    font-family: Arial, sans-serif;
+    padding: 25px 15px 100px;
 }
 
 .app {
     width: 100%;
-    max-width: 720px;
+    max-width: 700px;
+    margin: auto;
 }
 
 .header {
     margin-bottom: 22px;
 }
 
-.logo {
+.title {
     font-size: 28px;
     font-weight: 700;
-    letter-spacing: -1px;
 }
 
 .subtitle {
@@ -44,19 +37,19 @@ body {
     font-size: 14px;
 }
 
-.repository {
-    margin-top: 14px;
+.repo {
     display: inline-block;
-    padding: 7px 11px;
-    border: 1px solid #202027;
+    margin-top: 12px;
+    padding: 7px 10px;
+    border: 1px solid #24242c;
     border-radius: 9px;
-    background: #101014;
-    color: #9999a5;
+    background: #111116;
+    color: #888893;
     font-size: 12px;
 }
 
 .status {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     color: #777783;
     font-size: 13px;
 }
@@ -65,52 +58,54 @@ body {
     display: flex;
     flex-direction: column;
     gap: 9px;
-    padding-bottom: 90px;
 }
 
 .file {
-    width: 100%;
-    border: 1px solid #202027;
-    background: #101014;
-    border-radius: 13px;
     padding: 15px;
+    border: 1px solid #22222a;
+    border-radius: 13px;
+    background: #101014;
     cursor: pointer;
-    transition: .18s ease;
-    user-select: none;
+    transition: .18s;
 }
 
 .file:hover {
-    border-color: #383843;
-    background: #141419;
-    transform: translateY(-1px);
+    background: #15151b;
+    border-color: #393942;
 }
 
 .file.selected {
+    background: #171420;
     border-color: #735cff;
-    background: #17141f;
     box-shadow: 0 0 0 1px rgba(115, 92, 255, .15);
 }
 
-.file-name {
+.name {
     font-size: 15px;
     font-weight: 600;
-    color: #f1f1f4;
-    word-break: break-word;
 }
 
-.file-path {
+.path {
     margin-top: 5px;
-    color: #6e6e79;
+    color: #70707b;
     font-size: 12px;
     word-break: break-all;
 }
 
-.empty {
-    padding: 35px 20px;
-    text-align: center;
-    border: 1px dashed #292930;
-    border-radius: 14px;
+.loading,
+.empty,
+.error {
+    padding: 25px;
+    border: 1px solid #24242b;
+    border-radius: 13px;
+    background: #101014;
     color: #777783;
+    text-align: center;
+}
+
+.error {
+    color: #c7838d;
+    text-align: left;
 }
 
 .bottom {
@@ -118,72 +113,45 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 14px 16px;
-    background: linear-gradient(
-        to top,
-        #08080b 65%,
-        transparent
-    );
+    padding: 14px 15px;
+    background: linear-gradient(to top, #08080b 65%, transparent);
 }
 
 .open {
     display: block;
-    width: min(720px, 100%);
-    margin: 0 auto;
+    width: min(700px, 100%);
+    margin: auto;
+    padding: 15px;
     border: 0;
     border-radius: 13px;
-    padding: 15px 18px;
     background: #735cff;
     color: white;
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    transition: .18s ease;
-}
-
-.open:hover {
-    background: #806cff;
 }
 
 .open:disabled {
-    background: #202027;
+    background: #22222a;
     color: #666670;
     cursor: not-allowed;
 }
 
-.error {
-    padding: 18px;
-    border: 1px solid #39252b;
-    background: #151012;
-    border-radius: 13px;
-    color: #c58b96;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.loading {
-    padding: 30px;
-    text-align: center;
-    color: #777783;
-}
-
 @media (max-width: 500px) {
-    body {
-        padding: 22px 12px;
-    }
-
-    .logo {
+    .title {
         font-size: 24px;
-    }
-
-    .file {
-        padding: 14px;
     }
 }
 </style></head><body><div class="app"><div class="header">
-    <div class="logo" id="title">View Repository</div>
-    <div class="subtitle">Выберите HTML версию</div>
-    <div class="repository" id="repository">Загрузка...</div>
+    <div class="title" id="title">View Repository</div>
+
+    <div class="subtitle">
+        Выберите HTML версию
+    </div>
+
+    <div class="repo" id="repo">
+        Загрузка...
+    </div>
 </div>
 
 <div class="status" id="status">
@@ -191,98 +159,103 @@ body {
 </div>
 
 <div class="list" id="list">
-    <div class="loading">Загрузка репозитория...</div>
+    <div class="loading">
+        Загрузка репозитория...
+    </div>
 </div>
 
 </div><div class="bottom">
-    <button class="open" id="openButton" disabled>
+    <button class="open" id="open" disabled>
         Открыть выбранную версию
     </button>
 </div><script>
+
 const list = document.getElementById("list");
 const status = document.getElementById("status");
-const repositoryLabel = document.getElementById("repository");
-const title = document.getElementById("title");
-const openButton = document.getElementById("openButton");
+const repoElement = document.getElementById("repo");
+const titleElement = document.getElementById("title");
+const openButton = document.getElementById("open");
 
-let selectedFile = null;
-let owner = null;
-let repo = null;
-let branch = null;
+let owner = "";
+let repository = "";
+let selectedFile = "";
 
-function getRepositoryInfo() {
-    const hostname = location.hostname;
+function detectRepository() {
 
-    if (!hostname.endsWith(".github.io")) {
+    const host = location.hostname;
+
+    if (!host.endsWith(".github.io")) {
         throw new Error(
-            "Этот файл должен быть открыт через GitHub Pages."
+            "Открой этот файл через GitHub Pages."
         );
     }
 
-    owner = hostname.replace(".github.io", "");
+    owner = host.replace(".github.io", "");
 
     const parts = location.pathname
         .split("/")
         .filter(Boolean);
 
     if (parts.length === 0) {
-        repo = owner + ".github.io";
+        repository = owner + ".github.io";
     } else {
-        repo = parts[0];
+        repository = parts[0];
     }
-
-    return {
-        owner,
-        repo
-    };
-}
-
-async function request(url) {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-        throw new Error(
-            "GitHub API вернул ошибку " + response.status
-        );
-    }
-
-    return await response.json();
 }
 
 async function loadRepository() {
 
     try {
 
-        const info = getRepositoryInfo();
+        detectRepository();
 
-        title.textContent = info.repo;
-        repositoryLabel.textContent =
-            info.owner + "/" + info.repo;
+        titleElement.textContent = repository;
 
-        const repository = await request(
+        repoElement.textContent =
+            owner + "/" + repository;
+
+        const repoResponse = await fetch(
             "https://api.github.com/repos/" +
-            encodeURIComponent(info.owner) +
+            encodeURIComponent(owner) +
             "/" +
-            encodeURIComponent(info.repo)
+            encodeURIComponent(repository)
         );
 
-        branch = repository.default_branch;
+        if (!repoResponse.ok) {
+            throw new Error(
+                "Не удалось получить репозиторий."
+            );
+        }
 
-        const tree = await request(
+        const repoData = await repoResponse.json();
+
+        const branch = repoData.default_branch;
+
+        const treeResponse = await fetch(
             "https://api.github.com/repos/" +
-            encodeURIComponent(info.owner) +
+            encodeURIComponent(owner) +
             "/" +
-            encodeURIComponent(info.repo) +
+            encodeURIComponent(repository) +
             "/git/trees/" +
             encodeURIComponent(branch) +
             "?recursive=1"
         );
 
-        const files = tree.tree
-            .filter(file =>
-                file.type === "blob" &&
-                /\.html?$/i.test(file.path)
-            )
+        if (!treeResponse.ok) {
+            throw new Error(
+                "Не удалось получить список файлов."
+            );
+        }
+
+        const treeData = await treeResponse.json();
+
+        const htmlFiles = treeData.tree
+            .filter(file => {
+                return (
+                    file.type === "blob" &&
+                    file.path.toLowerCase().endsWith(".html")
+                );
+            })
             .sort((a, b) =>
                 a.path.localeCompare(
                     b.path,
@@ -294,13 +267,14 @@ async function loadRepository() {
                 )
             );
 
-        if (files.length === 0) {
+        if (htmlFiles.length === 0) {
 
-            status.textContent = "HTML файлов не найдено.";
+            status.textContent =
+                "HTML файлов не найдено.";
 
             list.innerHTML = `
                 <div class="empty">
-                    В этом репозитории нет HTML файлов.
+                    В репозитории нет HTML файлов.
                 </div>
             `;
 
@@ -308,64 +282,63 @@ async function loadRepository() {
         }
 
         status.textContent =
-            "Найдено HTML файлов: " + files.length;
+            "Найдено HTML файлов: " +
+            htmlFiles.length;
 
         list.innerHTML = "";
 
-        files.forEach(file => {
+        htmlFiles.forEach(file => {
 
-            const item = document.createElement("div");
+            const element =
+                document.createElement("div");
 
-            item.className = "file";
+            element.className = "file";
 
-            const name =
+            const fileName =
                 file.path.split("/").pop();
 
-            item.innerHTML = `
-                <div class="file-name">
-                    ${escapeHtml(name)}
+            element.innerHTML = `
+                <div class="name">
+                    ${escapeHTML(fileName)}
                 </div>
 
-                <div class="file-path">
-                    ${escapeHtml(file.path)}
+                <div class="path">
+                    ${escapeHTML(file.path)}
                 </div>
             `;
 
-            item.addEventListener("click", () => {
+            element.addEventListener("click", () => {
 
                 document
                     .querySelectorAll(".file")
-                    .forEach(element =>
-                        element.classList.remove("selected")
-                    );
+                    .forEach(item => {
+                        item.classList.remove("selected");
+                    });
 
-                item.classList.add("selected");
+                element.classList.add("selected");
 
                 selectedFile = file.path;
 
                 openButton.disabled = false;
             });
 
-            list.appendChild(item);
+            list.appendChild(element);
         });
 
     } catch (error) {
 
-        status.textContent = "Не удалось загрузить репозиторий.";
+        status.textContent = "Ошибка";
 
         list.innerHTML = `
             <div class="error">
-                <b>Ошибка</b><br><br>
-                ${escapeHtml(error.message)}
-                <br><br>
-                Проверь, что файл открыт именно через GitHub Pages
-                и репозиторий является публичным.
+                ${escapeHTML(error.message)}
             </div>
         `;
     }
 }
 
-function escapeHtml(text) {
+function escapeHTML(text) {
+
     return text
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -374,35 +347,38 @@ function escapeHtml(text) {
         .replaceAll("'", "&#039;");
 }
 
-function getFileUrl(path) {
-
-    const encodedPath = path
-        .split("/")
-        .map(part => encodeURIComponent(part))
-        .join("/");
-
-    return (
-        "https://cdn.jsdelivr.net/gh/" +
-        owner +
-        "/" +
-        repo +
-        "@" +
-        branch +
-        "/" +
-        encodedPath
-    );
-}
-
 openButton.addEventListener("click", () => {
 
     if (!selectedFile) {
         return;
     }
 
-    window.location.href =
-        getFileUrl(selectedFile);
+    /*
+        ВАЖНО:
+
+        Здесь НЕ загружается HTML как текст.
+
+        Мы формируем настоящий URL GitHub Pages
+        и полностью переходим на выбранный HTML.
+    */
+
+    const encodedPath = selectedFile
+        .split("/")
+        .map(part => encodeURIComponent(part))
+        .join("/");
+
+    const url =
+        "https://" +
+        owner +
+        ".github.io/" +
+        repository +
+        "/" +
+        encodedPath;
+
+    window.location.href = url;
 });
 
 loadRepository();
+
 </script></body>
 </html>
