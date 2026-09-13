@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TLWebsite</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #07080c;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+
+header {
+    height: 64px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(12, 14, 21, .96);
+    border-bottom: 1px solid #202431;
+    z-index: 10;
+}
+
+.logo {
+    font-size: 19px;
+    font-weight: 800;
+    white-space: nowrap;
+    letter-spacing: .4px;
+}
+
+.logo span {
+    color: #8c7cff;
+}
+
+.urlBox {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    max-width: 900px;
+}
+
+#repoInput {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid #2b3040;
+    border-radius: 11px;
+    outline: none;
+    background: #10131b;
+    color: white;
+}
+
+#repoInput:focus {
+    border-color: #7669ff;
+}
+
+button {
+    border: 0;
+    border-radius: 10px;
+    padding: 0 16px;
+    cursor: pointer;
+    color: white;
+    background: #6659ff;
+    transition: .15s;
+}
+
+button:hover {
+    filter: brightness(1.12);
+}
+
+#reloadBtn {
+    width: 42px;
+    padding: 0;
+    background: #181c27;
+    border: 1px solid #292e3d;
+}
+
+/* BODY */
+
+.main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 290px;
+    min-width: 290px;
+    background: #0b0d13;
+    border-right: 1px solid #202431;
+    overflow: auto;
+}
+
+.repoInfo {
+    padding: 15px;
+    border-bottom: 1px solid #202431;
+}
+
+.repoName {
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.repoMeta {
+    color: #858b9c;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.tree {
+    padding: 8px;
+}
+
+.treeItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 5px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    color: #c8ccd7;
+    font-size: 13px;
+}
+
+.treeItem:hover {
+    background: #151925;
+}
+
+.treeItem.active {
+    background: #211f42;
+    color: white;
+}
+
+.treeItem.folder {
+    color: #aeb4c3;
+    cursor: default;
+}
+
+.treeChildren {
+    margin-left: 14px;
+}
+
+.icon {
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.fileName {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* CONTENT */
+
+.content {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: #080a0f;
+}
+
+.toolbar {
+    height: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    border-bottom: 1px solid #202431;
+    color: #9aa0b0;
+    font-size: 12px;
+}
+
+.currentFile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status {
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.viewer {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: white;
+}
+
+/* LOADING */
+
+#loading {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    background: #080a0f;
+    z-index: 5;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #292d3a;
+    border-top-color: #8175ff;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* EMPTY */
+
+.empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    color: #727889;
+    text-align: center;
+    padding: 30px;
+}
+
+.empty strong {
+    color: #dce0eb;
+    font-size: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+    header {
+        height: auto;
+        min-height: 64px;
+        flex-wrap: wrap;
+    }
+
+    .logo {
+        width: 100%;
+    }
+
+    .urlBox {
+        max-width: none;
+    }
+
+    .sidebar {
+        width: 210px;
+        min-width: 210px;
+    }
+
+    .status {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<header>
+    <div class="logo">
+        <span>TL</span>Website
+    </div>
+
+    <div class="urlBox">
+        <input
+            id="repoInput"
+            placeholder="https://github.com/user/repository"
+            autocomplete="off"
+            spellcheck="false"
+        >
+
+        <button id="openBtn">
+            Открыть
+        </button>
+
+        <button id="reloadBtn" title="Перезагрузить">
+            ↻
+        </button>
+    </div>
+</header>
+
+<div class="main">
+
+    <aside class="sidebar">
+
+        <div class="repoInfo">
+            <div class="repoName" id="repoName">
+                Репозиторий не открыт
+            </div>
+
+            <div class="repoMeta" id="repoMeta">
+                GitHub
+            </div>
+        </div>
+
+        <div class="tree" id="tree"></div>
+
+    </aside>
+
+    <section class="content">
+
+        <div class="toolbar">
+            <div class="currentFile" id="currentFile">
+                —
+            </div>
+
+            <div class="status" id="status">
+                Готов
+            </div>
+        </div>
+
+        <div class="viewer">
+
+            <div id="loading">
+                <div class="spinner"></div>
+                <div id="loadingText">Загрузка репозитория...</div>
+            </div>
+
+            <div class="empty" id="empty">
+                <strong>TLWebsite</strong>
+                <div>
+                    Вставь ссылку на GitHub-репозиторий
+                </div>
+            </div>
+
+            <iframe
+                id="preview"
+                sandbox="allow-scripts allow-forms allow-modals allow-popups allow-pointer-lock"
+            ></iframe>
+
+        </div>
+
+    </section>
+
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+/*
+    TLWebsite Static Repository Runtime
+
+    Возможности:
+
+    - GitHub repository
+    - полное дерево файлов
+    - несколько HTML
+    - CSS
+    - JS
+    - изображения
+    - шрифты
+    - SVG
+    - видео
+    - аудио
+    - относительные пути
+    - ../
+    - ./ 
+    - CSS url()
+    - CSS @import
+    - JS module imports
+    - переходы между HTML
+*/
+
+const API = "https://api.github.com";
+
+const state = {
+    owner: null,
+    repo: null,
+    branch: null,
+    files: new Map(),
+    root: null,
+    currentFile: null
+};
+
+const repoInput = document.getElementById("repoInput");
+const openBtn = document.getElementById("openBtn");
+const reloadBtn = document.getElementById("reloadBtn");
+
+const treeElement = document.getElementById("tree");
+const repoNameElement = document.getElementById("repoName");
+const repoMetaElement = document.getElementById("repoMeta");
+
+const currentFileElement = document.getElementById("currentFile");
+const statusElement = document.getElementById("status");
+
+const loadingElement = document.getElementById("loading");
+const loadingTextElement = document.getElementById("loadingText");
+
+const emptyElement = document.getElementById("empty");
+const preview = document.getElementById("preview");
+
+
+/* =========================================================
+   UTIL
+========================================================= */
+
+function setLoading(value, text = "Загрузка...") {
+    loadingElement.style.display = value ? "flex" : "none";
+    loadingTextElement.textContent = text;
+}
+
+function setStatus(text) {
+    statusElement.textContent = text;
+}
+
+function normalizePath(path) {
+    if (!path) return "";
+
+    path = path.replace(/\\/g, "/");
+
+    const parts = [];
+
+    for (const part of path.split("/")) {
+
+        if (!part || part === ".") {
+            continue;
+        }
+
+        if (part === "..") {
+            parts.pop();
+        } else {
+            parts.push(part);
+        }
+    }
+
+    return parts.join("/");
+}
+
+function dirname(path) {
+    const index = path.lastIndexOf("/");
+
+    if (index === -1) {
+        return "";
+    }
+
+    return path.slice(0, index);
+}
+
+function joinPath(base, target) {
+    if (!target) {
+        return normalizePath(base);
+    }
+
+    if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(target)) {
+        return target;
+    }
+
+    if (target.startsWith("/")) {
+        target = target.slice(1);
+        return normalizePath(target);
+    }
+
+    return normalizePath(
+        base ? base + "/" + target : target
+    );
+}
+
+function isExternal(url) {
+    return (
+        /^(https?:|data:|blob:|mailto:|tel:|javascript:|#)/i.test(url)
+    );
+}
+
+function escapeHtml(text) {
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   GITHUB
+========================================================= */
+
+function parseRepository(input) {
+
+    input = input.trim();
+
+    input = input
+        .replace(/^https?:\/\//i, "")
+        .replace(/^www\./i, "")
+        .replace(/^github\.com\//i, "")
+        .replace(/\/+$/, "");
+
+    const parts = input.split("/").filter(Boolean);
+
+    if (parts.length < 2) {
+        throw new Error(
+            "Нужна ссылка вида github.com/user/repository"
+        );
+    }
+
+    return {
+        owner: parts[0],
+        repo: parts[1].replace(/\.git$/, "")
+    };
+}
+
+async function githubRequest(url) {
+
+    const response = await fetch(url, {
+        headers: {
+            "Accept": "application/vnd.github+json"
+        }
+    });
+
+    if (!response.ok) {
+
+        let message = "";
+
+        try {
+            const data = await response.json();
+            message = data.message || "";
+        } catch {}
+
+        throw new Error(
+            `GitHub API ${response.status}` +
+            (message ? `: ${message}` : "")
+        );
+    }
+
+    return response.json();
+}
+
+
+/* =========================================================
+   LOAD REPOSITORY
+========================================================= */
+
+async function loadRepository() {
+
+    try {
+
+        setLoading(true, "Получение репозитория...");
+        setStatus("Подключение");
+
+        const parsed = parseRepository(repoInput.value);
+
+        state.owner = parsed.owner;
+        state.repo = parsed.repo;
+
+        const repoData = await githubRequest(
+            `${API}/repos/${encodeURIComponent(state.owner)}/${encodeURIComponent(state.repo)}`
+        );
+
+        state.branch = repoData.default_branch;
+
+        repoNameElement.textContent =
+            `${state.owner}/${state.repo}`;
+
+        repoMetaElement.textContent =
+            `branch: ${state.branch}`;
+
+        setLoading(true, "Чтение структуры файлов...");
+
+        const treeData = await githubRequest(
+            `${API}/repos/${encodeURIComponent(state.owner)}/${encodeURIComponent(state.repo)}/git/trees/${encodeURIComponent(state.branch)}?recursive=1`
+        );
+
+        if (treeData.truncated) {
+            throw new Error(
+                "GitHub ограничил размер дерева файлов этого репозитория."
+            );
+        }
+
+        state.files.clear();
+
+        for (const item of treeData.tree) {
+
+            if (item.type !== "blob") {
+                continue;
+            }
+
+            const path = normalizePath(item.path);
+
+            state.files.set(path, {
+                path,
+                sha: item.sha,
+                size: item.size,
+                url: item.url
+            });
+        }
+
+        buildFileTree();
+
+        const index =
+            findFile("index.html") ||
+            findFirstHtml();
+
+        if (!index) {
+            throw new Error(
+                "В репозитории не найден ни один HTML-файл."
+            );
+        }
+
+        setLoading(true, "Подготовка сайта...");
+
+        await openHtml(index.path);
+
+        setStatus(
+            `${state.files.size} файлов`
+        );
+
+        emptyElement.classList.add("hidden");
+
+    } catch (error) {
+
+        console.error(error);
+
+        showError(error.message);
+
+    } finally {
+
+        setLoading(false);
+
+    }
+}
+
+
+/* =========================================================
+   FILE SEARCH
+========================================================= */
+
+function findFile(path) {
+
+    path = normalizePath(path);
+
+    if (state.files.has(path)) {
+        return state.files.get(path);
+    }
+
+    return null;
+}
+
+function findFirstHtml() {
+
+    for (const file of state.files.values()) {
+
+        if (
+            file.path.toLowerCase().endsWith(".html") ||
+            file.path.toLowerCase().endsWith(".htm")
+        ) {
+            return file;
+        }
+    }
+
+    return null;
+}
+
+
+/* =========================================================
+   FILE TREE
+========================================================= */
+
+function buildFileTree() {
+
+    treeElement.innerHTML = "";
+
+    const root = {
+        folders: new Map(),
+        files: []
+    };
+
+    for (const file of state.files.values()) {
+
+        const parts = file.path.split("/");
+
+        let node = root;
+
+        for (let i = 0; i < parts.length - 1; i++) {
+
+            const folder = parts[i];
+
+            if (!node.folders.has(folder)) {
+
+                node.folders.set(folder, {
+                    folders: new Map(),
+                    files: []
+                });
+
+            }
+
+            node = node.folders.get(folder);
+        }
+
+        node.files.push(file);
+    }
+
+    state.root = root;
+
+    renderTreeNode(root, treeElement);
+}
+
+function renderTreeNode(node, parent, prefix = "") {
+
+    const folders =
+        [...node.folders.entries()]
+            .sort((a, b) =>
+                a[0].localeCompare(
+                    b[0],
+                    undefined,
+                    { numeric: true }
+                )
+            );
+
+    for (const [folderName, folderNode] of folders) {
+
+        const wrapper = document.createElement("div");
+
+        const row = document.createElement("div");
+        row.className = "treeItem folder";
+
+        row.innerHTML = `
+            <span class="icon">📁</span>
+            <span class="fileName">${escapeHtml(folderName)}</span>
+        `;
+
+        wrapper.appendChild(row);
+
+        const children = document.createElement("div");
+        children.className = "treeChildren";
+
+        renderTreeNode(
+            folderNode,
+            children,
+            prefix ? prefix + "/" + folderName : folderName
+        );
+
+        wrapper.appendChild(children);
+
+        parent.appendChild(wrapper);
+    }
+
+    const files =
+        [...node.files]
+            .sort((a, b) =>
+                a.path.localeCompare(
+                    b.path,
+                    undefined,
+                    { numeric: true }
+                )
+            );
+
+    for (const file of files) {
+
+        const row = document.createElement("div");
+
+        row.className = "treeItem";
+
+        row.dataset.path = file.path;
+
+        row.innerHTML = `
+            <span class="icon">${getFileIcon(file.path)}</span>
+            <span class="fileName">
+                ${escapeHtml(file.path.split("/").pop())}
+            </span>
+        `;
+
+        row.addEventListener("click", () => {
+
+            if (
+                file.path.toLowerCase().endsWith(".html") ||
+                file.path.toLowerCase().endsWith(".htm")
+            ) {
+                openHtml(file.path);
+            }
+
+        });
+
+        parent.appendChild(row);
+    }
+}
+
+function getFileIcon(path) {
+
+    const ext =
+        path.split(".").pop().toLowerCase();
+
+    const icons = {
+        html: "🌐",
+        htm: "🌐",
+        css: "🎨",
+        js: "⚙️",
+        json: "📋",
+        png: "🖼️",
+        jpg: "🖼️",
+        jpeg: "🖼️",
+        webp: "🖼️",
+        gif: "🖼️",
+        svg: "🔷",
+        ico: "🔷",
+        woff: "🔤",
+        woff2: "🔤",
+        ttf: "🔤",
+        otf: "🔤",
+        mp3: "🎵",
+        wav: "🎵",
+        mp4: "🎬",
+        webm: "🎬",
+        txt: "📄",
+        md: "📝"
+    };
+
+    return icons[ext] || "📄";
+}
+
+
+/* =========================================================
+   RESOURCE URL
+========================================================= */
+
+function getRawUrl(path) {
+
+    return (
+        `https://raw.githubusercontent.com/` +
+        `${encodeURIComponent(state.owner)}/` +
+        `${encodeURIComponent(state.repo)}/` +
+        `${encodeURIComponent(state.branch)}/` +
+        path.split("/").map(encodeURIComponent).join("/")
+    );
+}
+
+function resolveRepositoryFile(sourceFile, target) {
+
+    if (!target) {
+        return null;
+    }
+
+    target = target.trim();
+
+    if (isExternal(target)) {
+        return target;
+    }
+
+    /*
+        Удаляем query/hash.
+        Например:
+        image.png?v=2#test
+    */
+
+    let suffix = "";
+
+    const match = target.match(/([?#].*)$/);
+
+    if (match) {
+        suffix = match[1];
+        target = target.slice(0, match.index);
+    }
+
+    const baseDir = dirname(sourceFile);
+
+    let resolved;
+
+    if (target.startsWith("/")) {
+        resolved = normalizePath(target.slice(1));
+    } else {
+        resolved = joinPath(baseDir, target);
+    }
+
+    /*
+        Сначала проверяем точное совпадение.
+    */
+
+    if (state.files.has(resolved)) {
+        return getRawUrl(resolved) + suffix;
+    }
+
+    /*
+        Иногда браузер ожидает index.html
+        внутри папки.
+    */
+
+    if (state.files.has(resolved + "/index.html")) {
+        return getRawUrl(resolved + "/index.html") + suffix;
+    }
+
+    /*
+        Попробуем убрать ./.
+    */
+
+    const clean = normalizePath(resolved);
+
+    if (state.files.has(clean)) {
+        return getRawUrl(clean) + suffix;
+    }
+
+    return target;
+}
+
+
+/* =========================================================
+   HTML REWRITING
+========================================================= */
+
+function rewriteHtml(html, sourceFile) {
+
+    const parser = new DOMParser();
+
+    const document = parser.parseFromString(
+        html,
+        "text/html"
+    );
+
+    /*
+        BASE
+
+        Все относительные ссылки HTML будут
+        рассчитываться от файла.
+    */
+
+    const base = document.createElement("base");
+
+    base.href =
+        getRawUrl(dirname(sourceFile) + "/");
+
+    document.head.prepend(base);
+
+
+    /*
+        CSS
+    */
+
+    document.querySelectorAll(
+        "link[href]"
+    ).forEach(link => {
+
+        const href = link.getAttribute("href");
+
+        if (!href || isExternal(href)) {
+            return;
+        }
+
+        link.setAttribute(
+            "href",
+            resolveRepositoryFile(
+                sourceFile,
+                href
+            )
+        );
+    });
+
+
+    /*
+        JS
+    */
+
+    document.querySelectorAll(
+        "script[src]"
+    ).forEach(script => {
+
+        const src = script.getAttribute("src");
+
+        if (!src || isExternal(src)) {
+            return;
+        }
+
+        script.setAttribute(
+            "src",
+            resolveRepositoryFile(
+                sourceFile,
+                src
+            )
+        );
+    });
+
+
+    /*
+        Images
+    */
+
+    document.querySelectorAll(
+        "img[src]"
+    ).forEach(img => {
+
+        const src = img.getAttribute("src");
+
+        if (!src || isExternal(src)) {
+            return;
+        }
+
+        img.setAttribute(
+            "src",
+            resolveRepositoryFile(
+                sourceFile,
+                src
+            )
+        );
+    });
+
+
+    /*
+        Video / audio / source
+    */
+
+    document.querySelectorAll(
+        "video[src], audio[src], source[src], track[src]"
+    ).forEach(element => {
+
+        const src = element.getAttribute("src");
+
+        if (!src || isExternal(src)) {
+            return;
+        }
+
+        element.setAttribute(
+            "src",
+            resolveRepositoryFile(
+                sourceFile,
+                src
+            )
+        );
+    });
+
+
+    /*
+        Favicon
+    */
+
+    document.querySelectorAll(
+        "link[rel*='icon'][href]"
+    ).forEach(link => {
+
+        const href = link.getAttribute("href");
+
+        if (!href || isExternal(href)) {
+            return;
+        }
+
+        link.setAttribute(
+            "href",
+            resolveRepositoryFile(
+                sourceFile,
+                href
+            )
+        );
+    });
+
+
+    /*
+        Inline style=""
+    */
+
+    document.querySelectorAll(
+        "[style]"
+    ).forEach(element => {
+
+        let style =
+            element.getAttribute("style");
+
+        style =
+            rewriteCssUrls(
+                style,
+                sourceFile
+            );
+
+        element.setAttribute(
+            "style",
+            style
+        );
+    });
+
+
+    /*
+        <style>
+    */
+
+    document.querySelectorAll(
+        "style"
+    ).forEach(styleElement => {
+
+        styleElement.textContent =
+            rewriteCss(
+                styleElement.textContent,
+                sourceFile
+            );
+
+    });
+
+
+    /*
+        HTML links между страницами.
+
+        about.html
+        pages/contact.html
+        ../index.html
+
+        будут открываться внутри TLWebsite.
+    */
+
+    document.querySelectorAll(
+        "a[href]"
+    ).forEach(link => {
+
+        const href =
+            link.getAttribute("href");
+
+        if (
+            !href ||
+            isExternal(href) ||
+            href.startsWith("#") ||
+            href.startsWith("mailto:") ||
+            href.startsWith("tel:")
+        ) {
+            return;
+        }
+
+        const resolved =
+            resolveRepositoryPath(
+                sourceFile,
+                href
+            );
+
+        if (!resolved) {
+            return;
+        }
+
+        const file =
+            state.files.get(resolved);
+
+        if (
+            file &&
+            (
+                resolved.toLowerCase().endsWith(".html") ||
+                resolved.toLowerCase().endsWith(".htm")
+            )
+        ) {
+
+            link.setAttribute(
+                "data-tl-file",
+                resolved
+            );
+
+            link.setAttribute(
+                "href",
+                "#tl/" + resolved
+            );
+        }
+    });
+
+
+    /*
+        JS module imports.
+
+        Пример:
+
+        import x from "./js/test.js"
+
+        Браузер получит raw.githubusercontent URL.
+    */
+
+    document.querySelectorAll(
+        "script[type='module']"
+    ).forEach(script => {
+
+        if (script.src) {
+            return;
+        }
+
+        if (!script.textContent) {
+            return;
+        }
+
+        script.textContent =
+            rewriteJsImports(
+                script.textContent,
+                sourceFile
+            );
+    });
+
+
+    /*
+        Добавляем перехват переходов.
+    */
+
+    const navigationScript =
+        document.createElement("script");
+
+    navigationScript.textContent = `
+        document.addEventListener("click", function(event) {
+            const link = event.target.closest("a[data-tl-file]");
+
+            if (!link) return;
+
+            event.preventDefault();
+
+            parent.postMessage({
+                type: "TL_NAVIGATE",
+                path: link.dataset.tlFile
+            }, "*");
+        });
+    `;
+
+    document.body.appendChild(
+        navigationScript
+    );
+
+
+    return "<!DOCTYPE html>\n" +
+        document.documentElement.outerHTML;
+}
+
+
+/* =========================================================
+   CSS
+========================================================= */
+
+function rewriteCss(css, sourceFile) {
+
+    css =
+        rewriteCssUrls(
+            css,
+            sourceFile
+        );
+
+    /*
+        @import "file.css"
+    */
+
+    css = css.replace(
+        /@import\s+(?:url\()?["']([^"']+)["']\)?/gi,
+        (full, url) => {
+
+            if (isExternal(url)) {
+                return full;
+            }
+
+            const resolved =
+                resolveRepositoryFile(
+                    sourceFile,
+                    url
+                );
+
+            return full.replace(
+                url,
+                resolved
+            );
+        }
+    );
+
+    return css;
+}
+
+function rewriteCssUrls(css, sourceFile) {
+
+    return css.replace(
+        /url\(\s*(['"]?)(.*?)\1\s*\)/gi,
+        (full, quote, url) => {
+
+            if (
+                !url ||
+                isExternal(url)
+            ) {
+                return full;
+            }
+
+            const resolved =
+                resolveRepositoryFile(
+                    sourceFile,
+                    url
+                );
+
+            return `url("${resolved}")`;
+        }
+    );
+}
+
+
+/* =========================================================
+   JS IMPORTS
+========================================================= */
+
+function rewriteJsImports(js, sourceFile) {
+
+    /*
+        import ...
+        from "./file.js"
+
+        import "./file.js"
+    */
+
+    js = js.replace(
+        /(from\s*["']|import\s*["'])([^"']+)(["'])/g,
+        (full, prefix, url, suffix) => {
+
+            if (isExternal(url)) {
+                return full;
+            }
+
+            const resolved =
+                resolveRepositoryFile(
+                    sourceFile,
+                    url
+                );
+
+            return prefix +
+                resolved +
+                suffix;
+        }
+    );
+
+    return js;
+}
+
+
+/* =========================================================
+   PATH RESOLUTION
+========================================================= */
+
+function resolveRepositoryPath(
+    sourceFile,
+    target
+) {
+
+    if (!target) {
+        return null;
+    }
+
+    /*
+        Убираем query/hash.
+    */
+
+    target =
+        target.split("#")[0]
+             .split("?")[0];
+
+    if (!target) {
+        return null;
+    }
+
+    if (
+        target.startsWith("http://") ||
+        target.startsWith("https://")
+    ) {
+        return null;
+    }
+
+    if (target.startsWith("/")) {
+        target = target.slice(1);
+
+        return state.files.has(target)
+            ? target
+            : null;
+    }
+
+    const result =
+        joinPath(
+            dirname(sourceFile),
+            target
+        );
+
+    if (state.files.has(result)) {
+        return result;
+    }
+
+    if (
+        state.files.has(
+            result + "/index.html"
+        )
+    ) {
+        return result + "/index.html";
+    }
+
+    return null;
+}
+
+
+/* =========================================================
+   OPEN HTML
+========================================================= */
+
+async function openHtml(path) {
+
+    const file =
+        state.files.get(
+            normalizePath(path)
+        );
+
+    if (!file) {
+        throw new Error(
+            `Файл не найден: ${path}`
+        );
+    }
+
+    setLoading(
+        true,
+        `Открытие ${path}...`
+    );
+
+    state.currentFile = file.path;
+
+    currentFileElement.textContent =
+        file.path;
+
+    highlightCurrentFile();
+
+
+    /*
+        Получаем содержимое HTML напрямую
+        через raw.githubusercontent.com.
+    */
+
+    const rawUrl =
+        getRawUrl(file.path);
+
+    const response =
+        await fetch(rawUrl);
+
+    if (!response.ok) {
+        throw new Error(
+            `Не удалось загрузить ${file.path}`
+        );
+    }
+
+    let html =
+        await response.text();
+
+
+    /*
+        Переписываем все ресурсы.
+    */
+
+    html =
+        rewriteHtml(
+            html,
+            file.path
+        );
+
+
+    /*
+        Передаём HTML в iframe.
+    */
+
+    preview.srcdoc = html;
+
+    emptyElement.classList.add(
+        "hidden"
+    );
+
+    setStatus(
+        `${state.files.size} файлов`
+    );
+
+    setLoading(false);
+}
+
+
+/* =========================================================
+   HIGHLIGHT
+========================================================= */
+
+function highlightCurrentFile() {
+
+    treeElement
+        .querySelectorAll(".treeItem")
+        .forEach(element => {
+
+            element.classList.toggle(
+                "active",
+                element.dataset.path ===
+                state.currentFile
+            );
+
+        });
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+window.addEventListener(
+    "message",
+    event => {
+
+        if (!event.data) {
+            return;
+        }
+
+        if (
+            event.data.type ===
+            "TL_NAVIGATE"
+        ) {
+
+            const path =
+                normalizePath(
+                    event.data.path
+                );
+
+            const file =
+                state.files.get(path);
+
+            if (
+                file &&
+                (
+                    path.endsWith(".html") ||
+                    path.endsWith(".htm")
+                )
+            ) {
+
+                openHtml(path);
+
+            }
+        }
+    }
+);
+
+
+/* =========================================================
+   ERRORS
+========================================================= */
+
+function showError(message) {
+
+    setLoading(false);
+
+    emptyElement.classList.remove(
+        "hidden"
+    );
+
+    emptyElement.innerHTML = `
+        <strong>Ошибка</strong>
+        <div style="max-width:600px;color:#858b9c">
+            ${escapeHtml(message)}
+        </div>
+    `;
+
+    setStatus("Ошибка");
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+openBtn.addEventListener(
+    "click",
+    loadRepository
+);
+
+reloadBtn.addEventListener(
+    "click",
+    () => {
+
+        if (state.owner && state.repo) {
+
+            repoInput.value =
+                `https://github.com/${state.owner}/${state.repo}`;
+
+            loadRepository();
+
+        } else {
+
+            loadRepository();
+
+        }
+    }
+);
+
+repoInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (event.key === "Enter") {
+            loadRepository();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+const params =
+    new URLSearchParams(
+        location.search
+    );
+
+const repoParam =
+    params.get("repo");
+
+if (repoParam) {
+
+    repoInput.value =
+        repoParam;
+
+    loadRepository();
+}
+
+</script>
+
+</body>
+</html>

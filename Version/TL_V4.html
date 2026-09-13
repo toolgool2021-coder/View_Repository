@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TLWebsite</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #050505;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 58px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 14px;
+
+            background: rgba(10, 10, 12, 0.86);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            z-index: 10000;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            user-select: none;
+        }
+
+        .logo span {
+            color: #9b7cff;
+        }
+
+        .top-buttons {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .top-btn {
+            width: 40px;
+            height: 40px;
+
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 12px;
+
+            background: rgba(255, 255, 255, 0.045);
+            color: #fff;
+
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .top-btn:hover {
+            background: rgba(155, 124, 255, 0.16);
+            border-color: rgba(155, 124, 255, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .top-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* =========================
+           WEBSITE FRAME
+        ========================= */
+
+        #siteFrame {
+            position: fixed;
+
+            top: 58px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            width: 100%;
+            height: calc(100% - 58px);
+
+            border: 0;
+            background: #fff;
+
+            display: block;
+        }
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        #loading {
+            position: fixed;
+
+            top: 58px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            background: #050505;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 9000;
+
+            transition: opacity 0.3s ease;
+        }
+
+        #loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 42px;
+            height: 42px;
+
+            border: 3px solid rgba(255, 255, 255, 0.08);
+            border-top-color: #9b7cff;
+
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* =========================
+           MODAL BACKGROUND
+        ========================= */
+
+        .overlay {
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(0, 0, 0, 0.68);
+
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+
+            z-index: 20000;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 16px;
+        }
+
+        .overlay.active {
+            display: flex;
+        }
+
+        /* =========================
+           URL MODAL
+        ========================= */
+
+        .modal {
+            width: min(520px, 100%);
+
+            background: #111113;
+
+            border: 1px solid rgba(255, 255, 255, 0.09);
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 30px 100px rgba(0, 0, 0, 0.65);
+
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 17px 18px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            width: 34px;
+            height: 34px;
+
+            border: 0;
+            border-radius: 10px;
+
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+
+            cursor: pointer;
+
+            font-size: 20px;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        .modal-body {
+            padding: 18px;
+        }
+
+        .url-input {
+            width: 100%;
+
+            height: 48px;
+
+            padding: 0 14px;
+
+            border-radius: 12px;
+
+            border: 1px solid rgba(255, 255, 255, 0.1);
+
+            outline: none;
+
+            background: #08080a;
+            color: #fff;
+
+            font-size: 14px;
+        }
+
+        .url-input:focus {
+            border-color: rgba(155, 124, 255, 0.65);
+        }
+
+        .url-input::placeholder {
+            color: #666;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 9px;
+
+            margin-top: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+
+            height: 45px;
+
+            border: 0;
+            border-radius: 12px;
+
+            cursor: pointer;
+
+            color: #fff;
+
+            background: rgba(255, 255, 255, 0.07);
+
+            transition: 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.11);
+        }
+
+        .action-btn.primary {
+            background: #7256d8;
+        }
+
+        .action-btn.primary:hover {
+            background: #8064eb;
+        }
+
+        .hint {
+            margin-top: 12px;
+
+            color: #777;
+
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           FILE DRAWER
+        ========================= */
+
+        #drawer {
+            position: fixed;
+
+            top: 0;
+            right: 0;
+            bottom: 0;
+
+            width: min(390px, 92vw);
+
+            background: #0d0d0f;
+
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+
+            z-index: 15000;
+
+            transform: translateX(100%);
+
+            transition: transform 0.28s ease;
+
+            display: flex;
+            flex-direction: column;
+
+            box-shadow: -25px 0 70px rgba(0, 0, 0, 0.45);
+        }
+
+        #drawer.active {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            height: 58px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 14px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .drawer-title {
+            font-weight: 700;
+        }
+
+        #fileList {
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 10px;
+        }
+
+        .file-item {
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 11px 12px;
+
+            margin-bottom: 4px;
+
+            border: 0;
+            border-radius: 10px;
+
+            background: transparent;
+
+            color: #ccc;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            transition: 0.15s ease;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .file-icon {
+            width: 24px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .folder {
+            color: #b99cff;
+        }
+
+        .file-path {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* =========================
+           CODE VIEWER
+        ========================= */
+
+        #codeOverlay {
+            z-index: 25000;
+        }
+
+        .code-modal {
+            width: min(1100px, 100%);
+            height: min(85vh, 800px);
+
+            background: #0a0a0c;
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius: 16px;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+        }
+
+        .code-header {
+            min-height: 52px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 12px 0 16px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .code-title {
+            font-size: 13px;
+            color: #ccc;
+
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        #codeContent {
+            flex: 1;
+
+            margin: 0;
+
+            padding: 16px;
+
+            overflow: auto;
+
+            color: #d7d7d7;
+
+            font-family:
+                Consolas,
+                Monaco,
+                "Courier New",
+                monospace;
+
+            font-size: 12px;
+            line-height: 1.55;
+
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* =========================
+           ERROR
+        ========================= */
+
+        .error-box {
+            text-align: center;
+            max-width: 460px;
+        }
+
+        .error-icon {
+            font-size: 42px;
+            margin-bottom: 14px;
+        }
+
+        .error-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+
+        .error-text {
+            color: #999;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+            .topbar {
+                height: 54px;
+                padding: 0 9px;
+            }
+
+            .logo {
+                font-size: 16px;
+            }
+
+            .top-btn {
+                width: 37px;
+                height: 37px;
+                border-radius: 10px;
+            }
+
+            #siteFrame {
+                top: 54px;
+                height: calc(100% - 54px);
+            }
+
+            #loading {
+                top: 54px;
+            }
+
+            .top-buttons {
+                gap: 5px;
+            }
+
+            .modal-body {
+                padding: 14px;
+            }
+
+            .code-modal {
+                height: 90vh;
+                border-radius: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         TOP BAR
+    ========================= -->
+
+    <header class="topbar">
+
+        <div class="logo">
+            <span>TL</span>Website
+        </div>
+
+        <div class="top-buttons">
+
+            <button
+                class="top-btn"
+                id="repoBtn"
+                title="Открыть репозиторий">
+                🔗
+            </button>
+
+            <button
+                class="top-btn"
+                id="reloadBtn"
+                title="Перезагрузить">
+                ↻
+            </button>
+
+            <button
+                class="top-btn"
+                id="filesBtn"
+                title="Файлы">
+                ☰
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         WEBSITE
+    ========================= -->
+
+    <iframe
+        id="siteFrame"
+        title="Website preview">
+    </iframe>
+
+
+    <!-- =========================
+         LOADING
+    ========================= -->
+
+    <div id="loading">
+
+        <div class="loader"></div>
+
+        <div class="loading-text">
+            Загрузка сайта...
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         REPOSITORY MODAL
+    ========================= -->
+
+    <div
+        class="overlay"
+        id="repoOverlay">
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <div class="modal-title">
+                    Открыть GitHub репозиторий
+                </div>
+
+                <button
+                    class="close-btn"
+                    id="repoClose">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <input
+                    class="url-input"
+                    id="repoInput"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="https://github.com/user/repository">
+
+                <div class="modal-actions">
+
+                    <button
+                        class="action-btn"
+                        id="cancelRepo">
+                        Отмена
+                    </button>
+
+                    <button
+                        class="action-btn primary"
+                        id="openRepo">
+                        Открыть
+                    </button>
+
+                </div>
+
+                <div class="hint">
+                    Репозиторий должен быть публичным и содержать
+                    index.html.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         FILE DRAWER
+    ========================= -->
+
+    <aside id="drawer">
+
+        <div class="drawer-header">
+
+            <div class="drawer-title">
+                Файлы репозитория
+            </div>
+
+            <button
+                class="close-btn"
+                id="drawerClose">
+                ×
+            </button>
+
+        </div>
+
+        <div id="fileList"></div>
+
+    </aside>
+
+
+    <!-- =========================
+         CODE VIEWER
+    ========================= -->
+
+    <div
+        class="overlay"
+        id="codeOverlay">
+
+        <div class="code-modal">
+
+            <div class="code-header">
+
+                <div
+                    class="code-title"
+                    id="codeTitle">
+                    Файл
+                </div>
+
+                <button
+                    class="close-btn"
+                    id="codeClose">
+                    ×
+                </button>
+
+            </div>
+
+            <pre id="codeContent"></pre>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         ERROR
+    ========================= -->
+
+    <div
+        class="overlay"
+        id="errorOverlay">
+
+        <div class="modal">
+
+            <div class="modal-body">
+
+                <div class="error-box">
+
+                    <div class="error-icon">
+                        ⚠️
+                    </div>
+
+                    <div class="error-title">
+                        Не удалось открыть сайт
+                    </div>
+
+                    <div
+                        class="error-text"
+                        id="errorText">
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button
+                            class="action-btn primary"
+                            id="errorClose">
+                            Закрыть
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+<script>
+
+/* =========================================================
+   TLWEBSITE
+   GitHub Static Website Renderer
+========================================================= */
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let repository = {
+    owner: "",
+    name: "",
+    branch: "main"
+};
+
+let files = [];
+
+let currentBlobUrl = null;
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const siteFrame =
+    document.getElementById("siteFrame");
+
+const loading =
+    document.getElementById("loading");
+
+const repoOverlay =
+    document.getElementById("repoOverlay");
+
+const repoInput =
+    document.getElementById("repoInput");
+
+const drawer =
+    document.getElementById("drawer");
+
+const fileList =
+    document.getElementById("fileList");
+
+const codeOverlay =
+    document.getElementById("codeOverlay");
+
+const codeContent =
+    document.getElementById("codeContent");
+
+const codeTitle =
+    document.getElementById("codeTitle");
+
+const errorOverlay =
+    document.getElementById("errorOverlay");
+
+const errorText =
+    document.getElementById("errorText");
+
+
+/* =========================================================
+   GITHUB URL PARSER
+========================================================= */
+
+function parseGitHubUrl(url) {
+
+    url = url.trim();
+
+    if (!url) {
+        throw new Error(
+            "Введите URL GitHub репозитория."
+        );
+    }
+
+    try {
+
+        const parsed =
+            new URL(url);
+
+        if (parsed.hostname !== "github.com") {
+
+            throw new Error(
+                "Можно использовать только GitHub URL."
+            );
+        }
+
+        const parts =
+            parsed.pathname
+                .split("/")
+                .filter(Boolean);
+
+        if (parts.length < 2) {
+
+            throw new Error(
+                "Неверный URL репозитория."
+            );
+        }
+
+        return {
+            owner: parts[0],
+            name: parts[1].replace(/\.git$/, "")
+        };
+
+    } catch (error) {
+
+        if (
+            error.message.includes(
+                "Можно использовать"
+            )
+        ) {
+            throw error;
+        }
+
+        throw new Error(
+            "Неверный URL GitHub репозитория."
+        );
+    }
+}
+
+
+/* =========================================================
+   GITHUB API
+========================================================= */
+
+async function githubRequest(url) {
+
+    const response =
+        await fetch(url, {
+            headers: {
+                "Accept":
+                    "application/vnd.github+json"
+            }
+        });
+
+    if (!response.ok) {
+
+        if (response.status === 404) {
+
+            throw new Error(
+                "Репозиторий не найден или он приватный."
+            );
+        }
+
+        if (response.status === 403) {
+
+            throw new Error(
+                "GitHub API временно ограничил запросы."
+            );
+        }
+
+        throw new Error(
+            "GitHub API вернул ошибку " +
+            response.status
+        );
+    }
+
+    return response.json();
+}
+
+
+/* =========================================================
+   GET DEFAULT BRANCH
+========================================================= */
+
+async function getRepositoryInfo() {
+
+    const url =
+        `https://api.github.com/repos/${repository.owner}/${repository.name}`;
+
+    return githubRequest(url);
+}
+
+
+/* =========================================================
+   GET ALL FILES
+========================================================= */
+
+async function getRepositoryFiles() {
+
+    const info =
+        await getRepositoryInfo();
+
+    repository.branch =
+        info.default_branch || "main";
+
+    const treeUrl =
+        `https://api.github.com/repos/` +
+        `${repository.owner}/` +
+        `${repository.name}/` +
+        `git/trees/${encodeURIComponent(repository.branch)}` +
+        `?recursive=1`;
+
+    const data =
+        await githubRequest(treeUrl);
+
+    if (!data.tree) {
+
+        throw new Error(
+            "GitHub не вернул список файлов."
+        );
+    }
+
+    files =
+        data.tree
+            .filter(item => item.type === "blob")
+            .map(item => item.path)
+            .sort((a, b) =>
+                a.localeCompare(b)
+            );
+
+    return files;
+}
+
+
+/* =========================================================
+   CDN BASE
+========================================================= */
+
+function getCdnBase() {
+
+    return (
+        `https://cdn.jsdelivr.net/gh/` +
+        `${repository.owner}/` +
+        `${repository.name}@` +
+        `${repository.branch}/`
+    );
+}
+
+
+/* =========================================================
+   RAW FILE URL
+========================================================= */
+
+function getFileUrl(path) {
+
+    return (
+        getCdnBase() +
+        path
+            .split("/")
+            .map(part =>
+                encodeURIComponent(part)
+            )
+            .join("/")
+    );
+}
+
+
+/* =========================================================
+   FIND INDEX.HTML
+========================================================= */
+
+function findIndexFile() {
+
+    const exact =
+        files.find(
+            file =>
+                file.toLowerCase() ===
+                "index.html"
+        );
+
+    if (exact) {
+        return exact;
+    }
+
+    const nested =
+        files.find(
+            file =>
+                file.toLowerCase().endsWith(
+                    "/index.html"
+                )
+        );
+
+    return nested || null;
+}
+
+
+/* =========================================================
+   DOWNLOAD INDEX.HTML
+========================================================= */
+
+async function downloadIndexHtml(indexPath) {
+
+    const url =
+        getFileUrl(indexPath);
+
+    const response =
+        await fetch(
+            url,
+            {
+                cache: "no-store"
+            }
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Не удалось скачать index.html."
+        );
+    }
+
+    const html =
+        await response.text();
+
+    if (!html.trim()) {
+
+        throw new Error(
+            "index.html пустой."
+        );
+    }
+
+    return html;
+}
+
+
+/* =========================================================
+   CREATE REAL HTML BLOB
+========================================================= */
+
+function createHtmlBlob(html, indexPath) {
+
+    /*
+        ВАЖНО:
+
+        Мы НЕ переписываем CSS/JS/img ссылки.
+
+        Вместо этого добавляем <base>.
+
+        Например:
+
+        style.css
+
+        автоматически станет:
+
+        https://cdn.jsdelivr.net/gh/
+        owner/repo@main/style.css
+    */
+
+    const indexDirectory =
+        indexPath.includes("/")
+            ? indexPath
+                .split("/")
+                .slice(0, -1)
+                .join("/") + "/"
+            : "";
+
+    const baseUrl =
+        getCdnBase() +
+        indexDirectory;
+
+    const baseTag =
+        `<base href="${baseUrl}">`;
+
+    /*
+        Если <head> существует,
+        добавляем base сразу после него.
+    */
+
+    if (/<head[^>]*>/i.test(html)) {
+
+        html =
+            html.replace(
+                /<head([^>]*)>/i,
+                `<head$1>${baseTag}`
+            );
+
+    } else {
+
+        /*
+            На случай если HTML
+            вообще не содержит <head>.
+        */
+
+        html =
+            `<!DOCTYPE html>
+<html>
+<head>
+${baseTag}
+</head>
+<body>
+${html}
+</body>
+</html>`;
+    }
+
+    /*
+        Создаём настоящий HTML Blob.
+
+        Браузер получает MIME:
+        text/html
+
+        Поэтому iframe будет
+        РЕНДЕРИТЬ страницу,
+        а не показывать исходный код.
+    */
+
+    const blob =
+        new Blob(
+            [html],
+            {
+                type: "text/html;charset=utf-8"
+            }
+        );
+
+    return URL.createObjectURL(blob);
+}
+
+
+/* =========================================================
+   LOAD WEBSITE
+========================================================= */
+
+async function loadWebsite() {
+
+    showLoading();
+
+    try {
+
+        const indexPath =
+            findIndexFile();
+
+        if (!indexPath) {
+
+            throw new Error(
+                "В репозитории не найден index.html."
+            );
+        }
+
+        /*
+            Скачиваем настоящий HTML
+        */
+
+        const html =
+            await downloadIndexHtml(
+                indexPath
+            );
+
+        /*
+            Удаляем старый Blob
+        */
+
+        if (currentBlobUrl) {
+
+            URL.revokeObjectURL(
+                currentBlobUrl
+            );
+
+            currentBlobUrl = null;
+        }
+
+        /*
+            Создаём новый настоящий HTML
+        */
+
+        currentBlobUrl =
+            createHtmlBlob(
+                html,
+                indexPath
+            );
+
+        /*
+            Загружаем Blob в iframe
+        */
+
+        siteFrame.src =
+            currentBlobUrl;
+
+        siteFrame.onload =
+            () => {
+
+                hideLoading();
+
+            };
+
+        /*
+            Если iframe очень долго
+            грузится, всё равно убираем
+            экран загрузки.
+        */
+
+        setTimeout(
+            hideLoading,
+            10000
+        );
+
+    } catch (error) {
+
+        hideLoading();
+
+        showError(
+            error.message ||
+            "Неизвестная ошибка."
+        );
+    }
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+function showLoading() {
+
+    loading.classList.remove(
+        "hidden"
+    );
+}
+
+function hideLoading() {
+
+    loading.classList.add(
+        "hidden"
+    );
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(message) {
+
+    errorText.textContent =
+        message;
+
+    errorOverlay.classList.add(
+        "active"
+    );
+}
+
+function closeError() {
+
+    errorOverlay.classList.remove(
+        "active"
+    );
+}
+
+
+/* =========================================================
+   REPOSITORY MODAL
+========================================================= */
+
+function openRepositoryModal() {
+
+    repoOverlay.classList.add(
+        "active"
+    );
+
+    setTimeout(
+        () => repoInput.focus(),
+        100
+    );
+}
+
+function closeRepositoryModal() {
+
+    repoOverlay.classList.remove(
+        "active"
+    );
+}
+
+
+/* =========================================================
+   OPEN REPOSITORY
+========================================================= */
+
+async function openRepository() {
+
+    try {
+
+        const parsed =
+            parseGitHubUrl(
+                repoInput.value
+            );
+
+        repository.owner =
+            parsed.owner;
+
+        repository.name =
+            parsed.name;
+
+        closeRepositoryModal();
+
+        await getRepositoryFiles();
+
+        renderFileList();
+
+        await loadWebsite();
+
+    } catch (error) {
+
+        showError(
+            error.message ||
+            "Не удалось открыть репозиторий."
+        );
+    }
+}
+
+
+/* =========================================================
+   FILE ICON
+========================================================= */
+
+function getFileIcon(path) {
+
+    const lower =
+        path.toLowerCase();
+
+    if (
+        lower.endsWith(".html") ||
+        lower.endsWith(".htm")
+    ) {
+        return "🌐";
+    }
+
+    if (
+        lower.endsWith(".css")
+    ) {
+        return "🎨";
+    }
+
+    if (
+        lower.endsWith(".js") ||
+        lower.endsWith(".mjs")
+    ) {
+        return "📜";
+    }
+
+    if (
+        lower.endsWith(".png") ||
+        lower.endsWith(".jpg") ||
+        lower.endsWith(".jpeg") ||
+        lower.endsWith(".gif") ||
+        lower.endsWith(".webp") ||
+        lower.endsWith(".svg")
+    ) {
+        return "🖼️";
+    }
+
+    if (
+        lower.endsWith(".json")
+    ) {
+        return "🧩";
+    }
+
+    if (
+        lower.endsWith(".mp3") ||
+        lower.endsWith(".wav") ||
+        lower.endsWith(".ogg")
+    ) {
+        return "🎵";
+    }
+
+    return "📄";
+}
+
+
+/* =========================================================
+   FILE LIST
+========================================================= */
+
+function renderFileList() {
+
+    fileList.innerHTML = "";
+
+    if (!files.length) {
+
+        fileList.innerHTML =
+            `<div style="
+                color:#777;
+                padding:20px;
+                text-align:center;
+            ">
+                Файлы не найдены
+            </div>`;
+
+        return;
+    }
+
+    files.forEach(path => {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+        button.className =
+            "file-item";
+
+        button.innerHTML = `
+            <span class="file-icon">
+                ${getFileIcon(path)}
+            </span>
+
+            <span class="file-path">
+                ${escapeHtml(path)}
+            </span>
+        `;
+
+        button.addEventListener(
+            "click",
+            () => openFile(path)
+        );
+
+        fileList.appendChild(
+            button
+        );
+    });
+}
+
+
+/* =========================================================
+   OPEN FILE
+========================================================= */
+
+async function openFile(path) {
+
+    const lower =
+        path.toLowerCase();
+
+    /*
+        HTML открываем
+        непосредственно как сайт.
+    */
+
+    if (
+        lower.endsWith(".html") ||
+        lower.endsWith(".htm")
+    ) {
+
+        closeDrawer();
+
+        const html =
+            await fetch(
+                getFileUrl(path),
+                {
+                    cache: "no-store"
+                }
+            ).then(
+                response => {
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Не удалось загрузить HTML."
+                        );
+                    }
+
+                    return response.text();
+                }
+            );
+
+        if (currentBlobUrl) {
+
+            URL.revokeObjectURL(
+                currentBlobUrl
+            );
+        }
+
+        currentBlobUrl =
+            createHtmlBlob(
+                html,
+                path
+            );
+
+        siteFrame.src =
+            currentBlobUrl;
+
+        return;
+    }
+
+
+    /*
+        Картинки показываем
+        как изображение.
+    */
+
+    if (
+        lower.endsWith(".png") ||
+        lower.endsWith(".jpg") ||
+        lower.endsWith(".jpeg") ||
+        lower.endsWith(".gif") ||
+        lower.endsWith(".webp") ||
+        lower.endsWith(".svg")
+    ) {
+
+        showImageFile(path);
+
+        return;
+    }
+
+
+    /*
+        Остальные текстовые файлы
+        показываем как код.
+    */
+
+    try {
+
+        const response =
+            await fetch(
+                getFileUrl(path),
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Не удалось загрузить файл."
+            );
+        }
+
+        const text =
+            await response.text();
+
+        codeTitle.textContent =
+            path;
+
+        codeContent.textContent =
+            text;
+
+        codeOverlay.classList.add(
+            "active"
+        );
+
+    } catch (error) {
+
+        showError(
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   IMAGE VIEW
+========================================================= */
+
+function showImageFile(path) {
+
+    const url =
+        getFileUrl(path);
+
+    codeTitle.textContent =
+        path;
+
+    codeContent.innerHTML = `
+        <div style="
+            width:100%;
+            height:100%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        ">
+            <img
+                src="${url}"
+                alt=""
+                style="
+                    max-width:100%;
+                    max-height:100%;
+                    object-fit:contain;
+                    border-radius:10px;
+                "
+            >
+        </div>
+    `;
+
+    codeOverlay.classList.add(
+        "active"
+    );
+}
+
+
+/* =========================================================
+   DRAWER
+========================================================= */
+
+function openDrawer() {
+
+    drawer.classList.add(
+        "active"
+    );
+}
+
+function closeDrawer() {
+
+    drawer.classList.remove(
+        "active"
+    );
+}
+
+
+/* =========================================================
+   CODE VIEWER
+========================================================= */
+
+function closeCodeViewer() {
+
+    codeOverlay.classList.remove(
+        "active"
+    );
+
+    codeContent.innerHTML = "";
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(text) {
+
+    return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/* =========================================================
+   RELOAD WEBSITE
+========================================================= */
+
+async function reloadWebsite() {
+
+    if (
+        !repository.owner ||
+        !repository.name
+    ) {
+
+        openRepositoryModal();
+
+        return;
+    }
+
+    await loadWebsite();
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+document
+    .getElementById("repoBtn")
+    .addEventListener(
+        "click",
+        openRepositoryModal
+    );
+
+
+document
+    .getElementById("repoClose")
+    .addEventListener(
+        "click",
+        closeRepositoryModal
+    );
+
+
+document
+    .getElementById("cancelRepo")
+    .addEventListener(
+        "click",
+        closeRepositoryModal
+    );
+
+
+document
+    .getElementById("openRepo")
+    .addEventListener(
+        "click",
+        openRepository
+    );
+
+
+document
+    .getElementById("reloadBtn")
+    .addEventListener(
+        "click",
+        reloadWebsite
+    );
+
+
+document
+    .getElementById("filesBtn")
+    .addEventListener(
+        "click",
+        openDrawer
+    );
+
+
+document
+    .getElementById("drawerClose")
+    .addEventListener(
+        "click",
+        closeDrawer
+    );
+
+
+document
+    .getElementById("codeClose")
+    .addEventListener(
+        "click",
+        closeCodeViewer
+    );
+
+
+document
+    .getElementById("errorClose")
+    .addEventListener(
+        "click",
+        closeError
+    );
+
+
+/* =========================================================
+   ENTER KEY
+========================================================= */
+
+repoInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (event.key === "Enter") {
+
+            openRepository();
+        }
+
+        if (event.key === "Escape") {
+
+            closeRepositoryModal();
+        }
+    }
+);
+
+
+/* =========================================================
+   CLICK OUTSIDE MODALS
+========================================================= */
+
+repoOverlay.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            repoOverlay
+        ) {
+            closeRepositoryModal();
+        }
+    }
+);
+
+
+codeOverlay.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            codeOverlay
+        ) {
+            closeCodeViewer();
+        }
+    }
+);
+
+
+errorOverlay.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            errorOverlay
+        ) {
+            closeError();
+        }
+    }
+);
+
+
+/* =========================================================
+   CLEANUP
+========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        if (currentBlobUrl) {
+
+            URL.revokeObjectURL(
+                currentBlobUrl
+            );
+        }
+    }
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+/*
+    Можно сразу загрузить репозиторий
+    через URL параметр:
+
+    ?repo=https://github.com/user/repo
+
+    Например:
+
+    TLWebsite/?repo=https://github.com/toolgool2021-coder/TLwebsite
+*/
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+const startupRepo =
+    params.get("repo");
+
+
+if (startupRepo) {
+
+    repoInput.value =
+        startupRepo;
+
+    openRepository();
+
+}
+
+</script>
+
+</body>
+</html>

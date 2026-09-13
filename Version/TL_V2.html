@@ -1,0 +1,3351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TLWebsite</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #07090d;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    height: 58px;
+    min-height: 58px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding:
+        8px
+        max(10px, env(safe-area-inset-right))
+        8px
+        max(10px, env(safe-area-inset-left));
+
+    background: rgba(9, 12, 18, .98);
+    border-bottom: 1px solid #242a36;
+
+    position: relative;
+    z-index: 50;
+}
+
+.logo {
+    font-size: 18px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.logo span {
+    color: #8175ff;
+}
+
+.urlBar {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    gap: 7px;
+}
+
+#repoInput {
+    flex: 1;
+    min-width: 0;
+
+    height: 40px;
+
+    padding: 0 12px;
+
+    border: 1px solid #2b3240;
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #12161e;
+    color: #fff;
+}
+
+#repoInput:focus {
+    border-color: #766aff;
+}
+
+.primaryButton {
+    height: 40px;
+
+    padding: 0 14px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: #6659ff;
+    color: white;
+
+    cursor: pointer;
+}
+
+.iconButton {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border: 1px solid #2b3240;
+    border-radius: 10px;
+
+    background: #171c25;
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 18px;
+}
+
+.iconButton:hover {
+    background: #222936;
+}
+
+#mobileOpenButton {
+    display: none;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+/* =========================
+   WEBSITE
+========================= */
+
+.viewer {
+    position: absolute;
+    inset: 0;
+
+    background: white;
+}
+
+#preview {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    border: 0;
+
+    background: white;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+#empty {
+    position: absolute;
+    inset: 0;
+
+    z-index: 5;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    gap: 9px;
+
+    padding: 25px;
+
+    text-align: center;
+
+    background: #080a0f;
+    color: #8b94a5;
+}
+
+#empty.hidden {
+    display: none;
+}
+
+#empty strong {
+    color: white;
+    font-size: 24px;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+#loading {
+    position: absolute;
+    inset: 0;
+
+    z-index: 20;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    gap: 12px;
+
+    background: #080a0f;
+    color: #929aaa;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+
+    border-radius: 50%;
+
+    border: 3px solid #292f3a;
+    border-top-color: #8175ff;
+
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================
+   DRAWER
+========================= */
+
+.drawer {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 320px;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #0b0e14;
+
+    border-right: 1px solid #2a303c;
+
+    box-shadow: 20px 0 50px rgba(0,0,0,.5);
+
+    z-index: 40;
+
+    transform: translateX(-105%);
+
+    transition: transform .22s ease;
+}
+
+.drawer.open {
+    transform: translateX(0);
+}
+
+.drawerHeader {
+    height: 57px;
+    min-height: 57px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 10px;
+
+    border-bottom: 1px solid #252b37;
+}
+
+.drawerTitle {
+    flex: 1;
+    min-width: 0;
+
+    font-weight: 700;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.closeButton {
+    width: 38px;
+    height: 38px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: #181d26;
+    color: white;
+
+    cursor: pointer;
+}
+
+.tree {
+    flex: 1;
+    min-height: 0;
+
+    overflow: auto;
+
+    padding: 8px;
+}
+
+.treeItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    min-height: 34px;
+
+    padding: 6px 8px;
+
+    border-radius: 7px;
+
+    color: #c9ced8;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.treeItem:hover {
+    background: #171c25;
+}
+
+.treeItem.active {
+    background: #29234f;
+    color: white;
+}
+
+.treeFolder {
+    color: #a4acba;
+    cursor: default;
+}
+
+.treeChildren {
+    margin-left: 15px;
+}
+
+.fileIcon {
+    width: 18px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.fileName {
+    min-width: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drawerFooter {
+    padding: 9px 11px;
+
+    border-top: 1px solid #252b37;
+
+    color: #7e8797;
+
+    font-size: 11px;
+}
+
+/* =========================
+   SCRIM
+========================= */
+
+#scrim {
+    position: absolute;
+    inset: 0;
+
+    z-index: 35;
+
+    display: none;
+
+    background: rgba(0,0,0,.58);
+}
+
+#scrim.show {
+    display: block;
+}
+
+/* =========================
+   FILE MODAL
+========================= */
+
+#fileModal {
+    position: absolute;
+    inset: 0;
+
+    z-index: 100;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 15px;
+
+    background: rgba(0,0,0,.72);
+}
+
+#fileModal.show {
+    display: flex;
+}
+
+.modalBox {
+    width: min(950px, 100%);
+    height: min(85vh, 750px);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid #2c3340;
+    border-radius: 14px;
+
+    background: #0c1017;
+
+    box-shadow: 0 25px 80px rgba(0,0,0,.7);
+}
+
+.modalHeader {
+    min-height: 54px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 8px;
+
+    border-bottom: 1px solid #252b37;
+}
+
+.modalTitle {
+    flex: 1;
+    min-width: 0;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.modalActions {
+    display: flex;
+    gap: 5px;
+}
+
+.smallButton {
+    height: 34px;
+
+    padding: 0 10px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #191e28;
+    color: white;
+
+    cursor: pointer;
+}
+
+.smallButton.primary {
+    background: #6659ff;
+}
+
+#codeViewer {
+    flex: 1;
+    min-height: 0;
+
+    margin: 0;
+
+    padding: 15px;
+
+    overflow: auto;
+
+    background: #080a0f;
+    color: #d9dde7;
+
+    font-family:
+        Consolas,
+        Monaco,
+        monospace;
+
+    font-size: 13px;
+    line-height: 1.55;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+#imageViewer {
+    display: none;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+
+    margin: auto;
+}
+
+/* =========================
+   URL MODAL
+========================= */
+
+#urlModal {
+    position: absolute;
+    inset: 0;
+
+    z-index: 110;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 18px;
+
+    background: rgba(0,0,0,.72);
+}
+
+#urlModal.show {
+    display: flex;
+}
+
+.urlModalBox {
+    width: min(520px, 100%);
+
+    padding: 18px;
+
+    border: 1px solid #2b3240;
+    border-radius: 15px;
+
+    background: #0d1118;
+
+    box-shadow: 0 25px 80px rgba(0,0,0,.65);
+}
+
+.urlModalTitle {
+    font-size: 18px;
+    font-weight: 700;
+
+    margin-bottom: 6px;
+}
+
+.urlModalDescription {
+    color: #858e9e;
+
+    font-size: 13px;
+
+    margin-bottom: 14px;
+}
+
+#urlModalInput {
+    width: 100%;
+    height: 43px;
+
+    padding: 0 12px;
+
+    border: 1px solid #2b3240;
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #141922;
+    color: white;
+}
+
+#urlModalInput:focus {
+    border-color: #766aff;
+}
+
+.urlModalButtons {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 7px;
+
+    margin-top: 12px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    header {
+        height: 58px;
+        min-height: 58px;
+    }
+
+    .logo {
+        font-size: 16px;
+    }
+
+    .urlBar {
+        display: none;
+    }
+
+    #mobileOpenButton {
+        display: block;
+        margin-left: auto;
+    }
+
+    .drawer {
+        width: min(87vw, 350px);
+    }
+
+    #fileModal {
+        padding: 8px;
+    }
+
+    .modalBox {
+        height: 91vh;
+        border-radius: 11px;
+    }
+
+    .smallButton {
+        padding: 0 8px;
+        font-size: 12px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <header>
+
+        <div class="logo">
+            <span>TL</span>Website
+        </div>
+
+        <div class="urlBar">
+
+            <input
+                id="repoInput"
+                type="text"
+                placeholder="https://github.com/user/repository"
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+            <button
+                class="primaryButton"
+                id="openButton"
+            >
+                Открыть
+            </button>
+
+            <button
+                class="iconButton"
+                id="reloadButton"
+                title="Перезагрузить"
+            >
+                ↻
+            </button>
+
+        </div>
+
+        <button
+            class="iconButton"
+            id="mobileOpenButton"
+            title="Открыть GitHub репозиторий"
+        >
+            🔗
+        </button>
+
+        <button
+            class="iconButton"
+            id="menuButton"
+            title="Файлы"
+        >
+            ☰
+        </button>
+
+        <button
+            class="iconButton"
+            id="desktopReloadButton"
+            title="Перезагрузить"
+        >
+            ↻
+        </button>
+
+    </header>
+
+
+    <main class="main">
+
+        <section class="viewer">
+
+            <div id="empty">
+
+                <strong>
+                    TLWebsite
+                </strong>
+
+                <span>
+                    Открой GitHub-репозиторий, чтобы запустить сайт
+                </span>
+
+            </div>
+
+            <div id="loading">
+
+                <div class="spinner"></div>
+
+                <span id="loadingText">
+                    Загрузка...
+                </span>
+
+            </div>
+
+            <iframe
+                id="preview"
+                sandbox="
+                    allow-scripts
+                    allow-forms
+                    allow-modals
+                    allow-popups
+                    allow-pointer-lock
+                "
+            ></iframe>
+
+        </section>
+
+
+        <div id="scrim"></div>
+
+
+        <aside
+            class="drawer"
+            id="drawer"
+        >
+
+            <div class="drawerHeader">
+
+                <div
+                    class="drawerTitle"
+                    id="repositoryName"
+                >
+                    Репозиторий
+                </div>
+
+                <button
+                    class="closeButton"
+                    id="closeDrawer"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+            <div
+                class="tree"
+                id="fileTree"
+            ></div>
+
+            <div
+                class="drawerFooter"
+                id="drawerStatus"
+            >
+                Готов
+            </div>
+
+        </aside>
+
+
+        <div id="fileModal">
+
+            <div class="modalBox">
+
+                <div class="modalHeader">
+
+                    <div
+                        class="modalTitle"
+                        id="modalTitle"
+                    >
+                        Файл
+                    </div>
+
+                    <div class="modalActions">
+
+                        <button
+                            class="smallButton primary"
+                            id="openFileButton"
+                        >
+                            Открыть
+                        </button>
+
+                        <button
+                            class="smallButton"
+                            id="copyButton"
+                        >
+                            Копировать
+                        </button>
+
+                        <button
+                            class="smallButton"
+                            id="closeModal"
+                        >
+                            ✕
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <pre id="codeViewer"></pre>
+
+                <img
+                    id="imageViewer"
+                    alt=""
+                >
+
+            </div>
+
+        </div>
+
+
+        <div id="urlModal">
+
+            <div class="urlModalBox">
+
+                <div class="urlModalTitle">
+                    Открыть GitHub репозиторий
+                </div>
+
+                <div class="urlModalDescription">
+                    Вставь ссылку на публичный GitHub-репозиторий.
+                </div>
+
+                <input
+                    id="urlModalInput"
+                    type="text"
+                    placeholder="https://github.com/user/repository"
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+
+                <div class="urlModalButtons">
+
+                    <button
+                        class="smallButton"
+                        id="cancelUrl"
+                    >
+                        Отмена
+                    </button>
+
+                    <button
+                        class="smallButton primary"
+                        id="openUrl"
+                    >
+                        Открыть
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const GITHUB_API =
+    "https://api.github.com";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+    owner: "",
+
+    repo: "",
+
+    branch: "",
+
+    files: new Map(),
+
+    currentFile: "",
+
+    currentFileContent: "",
+
+    currentRepoUrl: ""
+
+};
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const repoInput =
+    document.getElementById("repoInput");
+
+const openButton =
+    document.getElementById("openButton");
+
+const reloadButton =
+    document.getElementById("reloadButton");
+
+const desktopReloadButton =
+    document.getElementById("desktopReloadButton");
+
+const mobileOpenButton =
+    document.getElementById("mobileOpenButton");
+
+const menuButton =
+    document.getElementById("menuButton");
+
+const drawer =
+    document.getElementById("drawer");
+
+const closeDrawerButton =
+    document.getElementById("closeDrawer");
+
+const scrim =
+    document.getElementById("scrim");
+
+const fileTree =
+    document.getElementById("fileTree");
+
+const repositoryName =
+    document.getElementById("repositoryName");
+
+const drawerStatus =
+    document.getElementById("drawerStatus");
+
+const preview =
+    document.getElementById("preview");
+
+const empty =
+    document.getElementById("empty");
+
+const loading =
+    document.getElementById("loading");
+
+const loadingText =
+    document.getElementById("loadingText");
+
+const fileModal =
+    document.getElementById("fileModal");
+
+const modalTitle =
+    document.getElementById("modalTitle");
+
+const codeViewer =
+    document.getElementById("codeViewer");
+
+const imageViewer =
+    document.getElementById("imageViewer");
+
+const openFileButton =
+    document.getElementById("openFileButton");
+
+const copyButton =
+    document.getElementById("copyButton");
+
+const closeModalButton =
+    document.getElementById("closeModal");
+
+const urlModal =
+    document.getElementById("urlModal");
+
+const urlModalInput =
+    document.getElementById("urlModalInput");
+
+const openUrlButton =
+    document.getElementById("openUrl");
+
+const cancelUrlButton =
+    document.getElementById("cancelUrl");
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+function setLoading(
+    visible,
+    text = "Загрузка..."
+) {
+
+    loading.style.display =
+        visible
+            ? "flex"
+            : "none";
+
+    loadingText.textContent =
+        text;
+
+}
+
+
+/* =========================================================
+   PATH
+========================================================= */
+
+function normalizePath(
+    path
+) {
+
+    if (!path) {
+        return "";
+    }
+
+    path =
+        path
+            .replaceAll("\\", "/")
+            .replace(/^\/+/, "");
+
+    const parts = [];
+
+    for (
+        const part
+        of path.split("/")
+    ) {
+
+        if (
+            !part ||
+            part === "."
+        ) {
+            continue;
+        }
+
+        if (
+            part === ".."
+        ) {
+
+            parts.pop();
+
+        } else {
+
+            parts.push(part);
+
+        }
+
+    }
+
+    return parts.join("/");
+
+}
+
+
+function getDirectory(
+    path
+) {
+
+    const index =
+        path.lastIndexOf("/");
+
+    if (index === -1) {
+        return "";
+    }
+
+    return path.slice(
+        0,
+        index
+    );
+
+}
+
+
+function joinPath(
+    base,
+    target
+) {
+
+    if (!base) {
+        return normalizePath(target);
+    }
+
+    return normalizePath(
+        base + "/" + target
+    );
+
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
+
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================================================
+   EXTERNAL URL
+========================================================= */
+
+function isExternal(
+    value
+) {
+
+    return /^(https?:|data:|blob:|mailto:|tel:|javascript:|#)/i
+        .test(value || "");
+
+}
+
+
+/* =========================================================
+   GITHUB REPOSITORY
+========================================================= */
+
+function parseRepository(
+    value
+) {
+
+    value =
+        value
+            .trim()
+            .replace(/^https?:\/\//i, "")
+            .replace(/^www\./i, "")
+            .replace(/^github\.com\//i, "")
+            .replace(/\/+$/, "");
+
+    const parts =
+        value
+            .split("/")
+            .filter(Boolean);
+
+    if (
+        parts.length < 2
+    ) {
+
+        throw new Error(
+            "Укажи ссылку вида github.com/user/repository"
+        );
+
+    }
+
+    return {
+
+        owner:
+            parts[0],
+
+        repo:
+            parts[1]
+                .replace(/\.git$/, "")
+
+    };
+
+}
+
+
+/* =========================================================
+   GITHUB API
+========================================================= */
+
+async function githubRequest(
+    url
+) {
+
+    const response =
+        await fetch(
+            url,
+            {
+                headers: {
+                    "Accept":
+                        "application/vnd.github+json"
+                }
+            }
+        );
+
+    if (!response.ok) {
+
+        let message = "";
+
+        try {
+
+            const data =
+                await response.json();
+
+            message =
+                data.message || "";
+
+        } catch {}
+
+        throw new Error(
+            "GitHub API " +
+            response.status +
+            (
+                message
+                    ? ": " + message
+                    : ""
+            )
+        );
+
+    }
+
+    return response.json();
+
+}
+
+
+/* =========================================================
+   RAW URL
+========================================================= */
+
+function getRawUrl(
+    path
+) {
+
+    return (
+        "https://raw.githubusercontent.com/" +
+
+        encodeURIComponent(state.owner) +
+        "/" +
+        encodeURIComponent(state.repo) +
+        "/" +
+        encodeURIComponent(state.branch) +
+        "/" +
+
+        path
+            .split("/")
+            .map(encodeURIComponent)
+            .join("/")
+    );
+
+}
+
+
+/* =========================================================
+   RESOURCE RESOLUTION
+========================================================= */
+
+function resolveResource(
+    sourceFile,
+    target
+) {
+
+    if (
+        !target ||
+        isExternal(target)
+    ) {
+
+        return target;
+
+    }
+
+    let suffix = "";
+
+    const suffixMatch =
+        target.match(/[?#].*$/);
+
+    if (suffixMatch) {
+
+        suffix =
+            suffixMatch[0];
+
+        target =
+            target.slice(
+                0,
+                suffixMatch.index
+            );
+
+    }
+
+    let resolved;
+
+    if (
+        target.startsWith("/")
+    ) {
+
+        resolved =
+            normalizePath(
+                target.slice(1)
+            );
+
+    } else {
+
+        resolved =
+            joinPath(
+                getDirectory(sourceFile),
+                target
+            );
+
+    }
+
+
+    if (
+        state.files.has(resolved)
+    ) {
+
+        return (
+            getRawUrl(resolved) +
+            suffix
+        );
+
+    }
+
+
+    /*
+        Попытка найти файл
+        с расширением из
+        исходного пути.
+    */
+
+    const candidates = [
+
+        resolved,
+
+        resolved + ".css",
+
+        resolved + ".js",
+
+        resolved + ".json",
+
+        resolved + ".html",
+
+        resolved + ".png",
+
+        resolved + ".jpg",
+
+        resolved + ".jpeg",
+
+        resolved + ".webp",
+
+        resolved + ".svg"
+
+    ];
+
+
+    for (
+        const candidate
+        of candidates
+    ) {
+
+        if (
+            state.files.has(candidate)
+        ) {
+
+            return (
+                getRawUrl(candidate) +
+                suffix
+            );
+
+        }
+
+    }
+
+
+    /*
+        Если путь является папкой
+        с index.html
+    */
+
+    const indexFile =
+        resolved +
+        "/index.html";
+
+    if (
+        state.files.has(indexFile)
+    ) {
+
+        return (
+            getRawUrl(indexFile) +
+            suffix
+        );
+
+    }
+
+
+    return target;
+
+}
+
+
+/* =========================================================
+   HTML NAVIGATION PATH
+========================================================= */
+
+function resolveHtmlPath(
+    sourceFile,
+    target
+) {
+
+    if (
+        !target ||
+        isExternal(target)
+    ) {
+
+        return null;
+
+    }
+
+    target =
+        target
+            .split("#")[0]
+            .split("?")[0];
+
+
+    let path;
+
+    if (
+        target.startsWith("/")
+    ) {
+
+        path =
+            normalizePath(
+                target.slice(1)
+            );
+
+    } else {
+
+        path =
+            joinPath(
+                getDirectory(sourceFile),
+                target
+            );
+
+    }
+
+
+    if (
+        state.files.has(path)
+    ) {
+
+        return path;
+
+    }
+
+
+    if (
+        state.files.has(
+            path + "/index.html"
+        )
+    ) {
+
+        return path + "/index.html";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   CSS REWRITE
+========================================================= */
+
+function rewriteCss(
+    css,
+    sourceFile
+) {
+
+    css =
+        css.replace(
+
+            /url\(\s*(['"]?)(.*?)\1\s*\)/gi,
+
+            (
+                full,
+                quote,
+                url
+            ) => {
+
+                if (
+                    !url ||
+                    isExternal(url)
+                ) {
+
+                    return full;
+
+                }
+
+                return (
+                    'url("' +
+                    resolveResource(
+                        sourceFile,
+                        url
+                    ) +
+                    '")'
+                );
+
+            }
+
+        );
+
+
+    css =
+        css.replace(
+
+            /@import\s+(?:url\()?["']([^"']+)["']\)?/gi,
+
+            (
+                full,
+                url
+            ) => {
+
+                if (
+                    isExternal(url)
+                ) {
+
+                    return full;
+
+                }
+
+                return full.replace(
+
+                    url,
+
+                    resolveResource(
+                        sourceFile,
+                        url
+                    )
+
+                );
+
+            }
+
+        );
+
+
+    return css;
+
+}
+
+
+/* =========================================================
+   JS REWRITE
+========================================================= */
+
+function rewriteJavaScript(
+    js,
+    sourceFile
+) {
+
+    /*
+        ES modules:
+
+        import x from "./x.js"
+        import "./x.js"
+        export ... from "./x.js"
+    */
+
+    js =
+        js.replace(
+
+            /((?:from|import)\s*["'])([^"']+)(["'])/g,
+
+            (
+                full,
+                prefix,
+                url,
+                suffix
+            ) => {
+
+                if (
+                    isExternal(url)
+                ) {
+
+                    return full;
+
+                }
+
+                return (
+                    prefix +
+                    resolveResource(
+                        sourceFile,
+                        url
+                    ) +
+                    suffix
+                );
+
+            }
+
+        );
+
+
+    return js;
+
+}
+
+
+/* =========================================================
+   HTML REWRITE
+========================================================= */
+
+function rewriteHtml(
+    html,
+    sourceFile
+) {
+
+    const parser =
+        new DOMParser();
+
+    const doc =
+        parser.parseFromString(
+            html,
+            "text/html"
+        );
+
+
+    /*
+        Важно:
+
+        НЕ вставляем обычный <base>
+        для всего документа.
+
+        Иначе ссылки сайта могут
+        начать разрешаться не так,
+        как ожидает оригинальный сайт.
+
+        Поэтому каждый локальный
+        ресурс переписывается
+        непосредственно.
+    */
+
+
+    /* =========================
+       CSS
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "link[href]"
+        )
+        .forEach(
+            element => {
+
+                const rel =
+                    (
+                        element
+                            .getAttribute("rel") ||
+                        ""
+                    ).toLowerCase();
+
+                const href =
+                    element.getAttribute("href");
+
+
+                if (
+                    !href ||
+                    isExternal(href)
+                ) {
+
+                    return;
+
+                }
+
+
+                /*
+                    stylesheet
+                    preload stylesheet
+                    icon
+                    manifest
+                    и т.д.
+                */
+
+                element.setAttribute(
+
+                    "href",
+
+                    resolveResource(
+                        sourceFile,
+                        href
+                    )
+
+                );
+
+            }
+        );
+
+
+    /* =========================
+       IMG
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "img[src]"
+        )
+        .forEach(
+            element => {
+
+                const src =
+                    element.getAttribute("src");
+
+                if (
+                    src &&
+                    !isExternal(src)
+                ) {
+
+                    element.setAttribute(
+
+                        "src",
+
+                        resolveResource(
+                            sourceFile,
+                            src
+                        )
+
+                    );
+
+                }
+
+            }
+        );
+
+
+    /*
+        srcset
+    */
+
+    doc
+        .querySelectorAll(
+            "[srcset]"
+        )
+        .forEach(
+            element => {
+
+                const srcset =
+                    element.getAttribute(
+                        "srcset"
+                    );
+
+                if (!srcset) {
+                    return;
+                }
+
+
+                const rewritten =
+                    srcset
+                        .split(",")
+                        .map(
+                            part => {
+
+                                const pieces =
+                                    part
+                                        .trim()
+                                        .split(/\s+/);
+
+                                if (
+                                    !pieces[0] ||
+                                    isExternal(
+                                        pieces[0]
+                                    )
+                                ) {
+
+                                    return part;
+
+                                }
+
+                                pieces[0] =
+                                    resolveResource(
+                                        sourceFile,
+                                        pieces[0]
+                                    );
+
+                                return pieces.join(" ");
+
+                            }
+                        )
+                        .join(", ");
+
+
+                element.setAttribute(
+                    "srcset",
+                    rewritten
+                );
+
+            }
+        );
+
+
+    /* =========================
+       VIDEO / AUDIO
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "video[src], audio[src], source[src], track[src]"
+        )
+        .forEach(
+            element => {
+
+                const src =
+                    element.getAttribute("src");
+
+                if (
+                    src &&
+                    !isExternal(src)
+                ) {
+
+                    element.setAttribute(
+
+                        "src",
+
+                        resolveResource(
+                            sourceFile,
+                            src
+                        )
+
+                    );
+
+                }
+
+            }
+        );
+
+
+    /* =========================
+       OBJECT / EMBED
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "object[data], embed[src]"
+        )
+        .forEach(
+            element => {
+
+                const attribute =
+                    element.hasAttribute("data")
+                        ? "data"
+                        : "src";
+
+                const value =
+                    element.getAttribute(
+                        attribute
+                    );
+
+                if (
+                    value &&
+                    !isExternal(value)
+                ) {
+
+                    element.setAttribute(
+
+                        attribute,
+
+                        resolveResource(
+                            sourceFile,
+                            value
+                        )
+
+                    );
+
+                }
+
+            }
+        );
+
+
+    /* =========================
+       INLINE STYLE
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "[style]"
+        )
+        .forEach(
+            element => {
+
+                element.setAttribute(
+
+                    "style",
+
+                    rewriteCss(
+
+                        element.getAttribute(
+                            "style"
+                        ),
+
+                        sourceFile
+
+                    )
+
+                );
+
+            }
+        );
+
+
+    /* =========================
+       STYLE TAGS
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "style"
+        )
+        .forEach(
+            element => {
+
+                element.textContent =
+                    rewriteCss(
+
+                        element.textContent,
+
+                        sourceFile
+
+                    );
+
+            }
+        );
+
+
+    /* =========================
+       SCRIPT SRC
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "script[src]"
+        )
+        .forEach(
+            element => {
+
+                const src =
+                    element.getAttribute(
+                        "src"
+                    );
+
+                if (
+                    !src ||
+                    isExternal(src)
+                ) {
+
+                    return;
+
+                }
+
+                element.setAttribute(
+
+                    "src",
+
+                    resolveResource(
+                        sourceFile,
+                        src
+                    )
+
+                );
+
+            }
+        );
+
+
+    /* =========================
+       MODULE SCRIPTS
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "script[type='module']:not([src])"
+        )
+        .forEach(
+            element => {
+
+                element.textContent =
+                    rewriteJavaScript(
+
+                        element.textContent,
+
+                        sourceFile
+
+                    );
+
+            }
+        );
+
+
+    /* =========================
+       HTML LINKS
+    ========================= */
+
+    doc
+        .querySelectorAll(
+            "a[href]"
+        )
+        .forEach(
+            element => {
+
+                const href =
+                    element.getAttribute(
+                        "href"
+                    );
+
+                if (
+                    !href ||
+                    isExternal(href) ||
+                    href.startsWith("#")
+                ) {
+
+                    return;
+
+                }
+
+                const path =
+                    resolveHtmlPath(
+                        sourceFile,
+                        href
+                    );
+
+
+                if (
+                    path &&
+                    /\.(html?|xhtml)$/i.test(path)
+                ) {
+
+                    element.setAttribute(
+                        "data-tl-file",
+                        path
+                    );
+
+                    element.setAttribute(
+                        "href",
+                        "#tl/" + path
+                    );
+
+                }
+
+            }
+        );
+
+
+    /* =========================
+       INLINE NAVIGATION
+    ========================= */
+
+    const navigationScript =
+        doc.createElement("script");
+
+    navigationScript.textContent = `
+
+(function() {
+
+    document.addEventListener(
+        "click",
+        function(event) {
+
+            const link =
+                event.target.closest(
+                    "a[data-tl-file]"
+                );
+
+            if (!link) {
+                return;
+            }
+
+            event.preventDefault();
+
+            parent.postMessage(
+                {
+                    type: "TL_NAVIGATE",
+                    path: link.dataset.tlFile
+                },
+                "*"
+            );
+
+        },
+        true
+    );
+
+})();
+
+`;
+
+
+    if (doc.body) {
+
+        doc.body.appendChild(
+            navigationScript
+        );
+
+    }
+
+
+    return (
+        "<!DOCTYPE html>" +
+        doc.documentElement.outerHTML
+    );
+
+}
+
+
+/* =========================================================
+   LOAD RAW HTML
+========================================================= */
+
+async function fetchTextFile(
+    path
+) {
+
+    const response =
+        await fetch(
+            getRawUrl(path)
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Не удалось загрузить " +
+            path
+        );
+
+    }
+
+    return response.text();
+
+}
+
+
+/* =========================================================
+   OPEN WEBSITE
+========================================================= */
+
+async function openHtml(
+    path
+) {
+
+    path =
+        normalizePath(path);
+
+
+    if (
+        !state.files.has(path)
+    ) {
+
+        throw new Error(
+            "Файл не найден: " +
+            path
+        );
+
+    }
+
+
+    state.currentFile =
+        path;
+
+
+    highlightCurrentFile();
+
+
+    setLoading(
+        true,
+        "Запуск " + path + "..."
+    );
+
+
+    const html =
+        await fetchTextFile(path);
+
+
+    /*
+        Здесь происходит главное:
+
+        index.html
+             ↓
+        анализ HTML
+             ↓
+        CSS → GitHub raw
+        JS  → GitHub raw
+        IMG → GitHub raw
+        FONT → GitHub raw
+        VIDEO → GitHub raw
+        AUDIO → GitHub raw
+        JSON → GitHub raw
+             ↓
+        готовая страница
+    */
+
+    const rewritten =
+        rewriteHtml(
+            html,
+            path
+        );
+
+
+    preview.srcdoc =
+        rewritten;
+
+
+    empty.classList.add(
+        "hidden"
+    );
+
+
+    closeDrawer();
+
+
+    setLoading(
+        false
+    );
+
+}
+
+
+/* =========================================================
+   BUILD TREE
+========================================================= */
+
+function buildFileTree() {
+
+    fileTree.innerHTML = "";
+
+
+    const root = {
+
+        folders: new Map(),
+
+        files: []
+
+    };
+
+
+    for (
+        const file
+        of state.files.values()
+    ) {
+
+        const parts =
+            file.path.split("/");
+
+        let node =
+            root;
+
+
+        for (
+            let i = 0;
+            i < parts.length - 1;
+            i++
+        ) {
+
+            const folder =
+                parts[i];
+
+
+            if (
+                !node.folders.has(folder)
+            ) {
+
+                node.folders.set(
+
+                    folder,
+
+                    {
+                        folders: new Map(),
+                        files: []
+                    }
+
+                );
+
+            }
+
+
+            node =
+                node.folders.get(
+                    folder
+                );
+
+        }
+
+
+        node.files.push(file);
+
+    }
+
+
+    renderTreeNode(
+        root,
+        fileTree
+    );
+
+}
+
+
+/* =========================================================
+   RENDER TREE
+========================================================= */
+
+function renderTreeNode(
+    node,
+    parent
+) {
+
+    const folders =
+        [...node.folders.entries()]
+            .sort(
+                (a, b) =>
+                    a[0].localeCompare(
+                        b[0],
+                        undefined,
+                        {
+                            numeric: true
+                        }
+                    )
+            );
+
+
+    for (
+        const [
+            folderName,
+            folderNode
+        ]
+        of folders
+    ) {
+
+        const wrapper =
+            document.createElement("div");
+
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "treeItem treeFolder";
+
+
+        row.innerHTML = `
+
+            <span class="fileIcon">
+                📁
+            </span>
+
+            <span class="fileName">
+                ${escapeHtml(folderName)}
+            </span>
+
+        `;
+
+
+        wrapper.appendChild(row);
+
+
+        const children =
+            document.createElement("div");
+
+        children.className =
+            "treeChildren";
+
+
+        renderTreeNode(
+            folderNode,
+            children
+        );
+
+
+        wrapper.appendChild(children);
+
+
+        parent.appendChild(wrapper);
+
+    }
+
+
+    const files =
+        [...node.files]
+            .sort(
+                (a, b) =>
+                    a.path.localeCompare(
+                        b.path,
+                        undefined,
+                        {
+                            numeric: true
+                        }
+                    )
+            );
+
+
+    for (
+        const file
+        of files
+    ) {
+
+        const row =
+            document.createElement("div");
+
+
+        row.className =
+            "treeItem";
+
+
+        row.dataset.path =
+            file.path;
+
+
+        row.innerHTML = `
+
+            <span class="fileIcon">
+                ${getFileIcon(file.path)}
+            </span>
+
+            <span class="fileName">
+                ${escapeHtml(
+                    file.path.split("/").pop()
+                )}
+            </span>
+
+        `;
+
+
+        row.addEventListener(
+            "click",
+            () => handleFileClick(file)
+        );
+
+
+        parent.appendChild(row);
+
+    }
+
+}
+
+
+/* =========================================================
+   FILE ICON
+========================================================= */
+
+function getFileIcon(
+    path
+) {
+
+    const ext =
+        path
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    const icons = {
+
+        html: "🌐",
+        htm: "🌐",
+        xhtml: "🌐",
+
+        css: "🎨",
+
+        js: "⚙️",
+        mjs: "⚙️",
+        cjs: "⚙️",
+
+        json: "📋",
+
+        png: "🖼️",
+        jpg: "🖼️",
+        jpeg: "🖼️",
+        webp: "🖼️",
+        gif: "🖼️",
+
+        svg: "🔷",
+
+        ico: "🔷",
+
+        woff: "🔤",
+        woff2: "🔤",
+        ttf: "🔤",
+        otf: "🔤",
+
+        mp3: "🎵",
+        wav: "🎵",
+        ogg: "🎵",
+
+        mp4: "🎬",
+        webm: "🎬",
+
+        md: "📝",
+        txt: "📄"
+
+    };
+
+
+    return icons[ext] || "📄";
+
+}
+
+
+/* =========================================================
+   FILE CLICK
+========================================================= */
+
+async function handleFileClick(
+    file
+) {
+
+    const ext =
+        file.path
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    if (
+        [
+            "html",
+            "htm",
+            "xhtml"
+        ].includes(ext)
+    ) {
+
+        try {
+
+            await openHtml(
+                file.path
+            );
+
+        } catch (error) {
+
+            showError(
+                error.message
+            );
+
+        }
+
+        return;
+
+    }
+
+
+    try {
+
+        await openFileViewer(file);
+
+    } catch (error) {
+
+        showError(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   FILE VIEWER
+========================================================= */
+
+async function openFileViewer(
+    file
+) {
+
+    const ext =
+        file.path
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    modalTitle.textContent =
+        file.path;
+
+
+    codeViewer.style.display =
+        "block";
+
+
+    imageViewer.style.display =
+        "none";
+
+
+    openFileButton.style.display =
+        "none";
+
+
+    copyButton.style.display =
+        "block";
+
+
+    const imageExtensions = [
+
+        "png",
+        "jpg",
+        "jpeg",
+        "webp",
+        "gif",
+        "svg"
+
+    ];
+
+
+    if (
+        imageExtensions.includes(ext)
+    ) {
+
+        codeViewer.style.display =
+            "none";
+
+        imageViewer.style.display =
+            "block";
+
+        imageViewer.src =
+            getRawUrl(
+                file.path
+            );
+
+        copyButton.style.display =
+            "none";
+
+        fileModal.classList.add(
+            "show"
+        );
+
+        return;
+
+    }
+
+
+    const text =
+        await fetchTextFile(
+            file.path
+        );
+
+
+    state.currentFileContent =
+        text;
+
+
+    codeViewer.textContent =
+        text;
+
+
+    fileModal.classList.add(
+        "show"
+    );
+
+}
+
+
+/* =========================================================
+   HIGHLIGHT
+========================================================= */
+
+function highlightCurrentFile() {
+
+    fileTree
+        .querySelectorAll(
+            ".treeItem[data-path]"
+        )
+        .forEach(
+            element => {
+
+                element.classList.toggle(
+
+                    "active",
+
+                    element.dataset.path ===
+                    state.currentFile
+
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   DRAWER
+========================================================= */
+
+function openDrawer() {
+
+    drawer.classList.add("open");
+
+    scrim.classList.add("show");
+
+}
+
+
+function closeDrawer() {
+
+    drawer.classList.remove("open");
+
+    scrim.classList.remove("show");
+
+}
+
+
+function toggleDrawer() {
+
+    if (
+        drawer.classList.contains("open")
+    ) {
+
+        closeDrawer();
+
+    } else {
+
+        openDrawer();
+
+    }
+
+}
+
+
+/* =========================================================
+   URL MODAL
+========================================================= */
+
+function openUrlModal() {
+
+    urlModal.classList.add("show");
+
+    urlModalInput.value =
+        repoInput.value ||
+        state.currentRepoUrl ||
+        "";
+
+    setTimeout(
+        () => urlModalInput.focus(),
+        50
+    );
+
+}
+
+
+function closeUrlModal() {
+
+    urlModal.classList.remove("show");
+
+}
+
+
+function submitUrlModal() {
+
+    const value =
+        urlModalInput.value.trim();
+
+
+    if (!value) {
+
+        urlModalInput.focus();
+
+        return;
+
+    }
+
+
+    repoInput.value =
+        value;
+
+
+    closeUrlModal();
+
+
+    loadRepository();
+
+}
+
+
+/* =========================================================
+   FILE MODAL
+========================================================= */
+
+function closeFileModal() {
+
+    fileModal.classList.remove(
+        "show"
+    );
+
+}
+
+
+async function copyCurrentFile() {
+
+    try {
+
+        await navigator.clipboard.writeText(
+            state.currentFileContent
+        );
+
+
+        copyButton.textContent =
+            "Скопировано ✓";
+
+
+        setTimeout(
+            () => {
+
+                copyButton.textContent =
+                    "Копировать";
+
+            },
+            1200
+        );
+
+
+    } catch {
+
+        alert(
+            "Не удалось скопировать файл."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD REPOSITORY
+========================================================= */
+
+async function loadRepository() {
+
+    try {
+
+        setLoading(
+            true,
+            "Подключение к GitHub..."
+        );
+
+
+        const repository =
+            parseRepository(
+                repoInput.value
+            );
+
+
+        state.owner =
+            repository.owner;
+
+        state.repo =
+            repository.repo;
+
+
+        state.currentRepoUrl =
+            "https://github.com/" +
+            state.owner +
+            "/" +
+            state.repo;
+
+
+        /*
+            Получаем информацию
+            о репозитории.
+        */
+
+        const repositoryData =
+            await githubRequest(
+
+                GITHUB_API +
+                "/repos/" +
+                encodeURIComponent(
+                    state.owner
+                ) +
+                "/" +
+                encodeURIComponent(
+                    state.repo
+                )
+
+            );
+
+
+        state.branch =
+            repositoryData.default_branch;
+
+
+        repositoryName.textContent =
+            state.owner +
+            "/" +
+            state.repo;
+
+
+        /*
+            Получаем всё дерево.
+        */
+
+        setLoading(
+            true,
+            "Загрузка файлов..."
+        );
+
+
+        const treeData =
+            await githubRequest(
+
+                GITHUB_API +
+                "/repos/" +
+                encodeURIComponent(
+                    state.owner
+                ) +
+                "/" +
+                encodeURIComponent(
+                    state.repo
+                ) +
+                "/git/trees/" +
+                encodeURIComponent(
+                    state.branch
+                ) +
+                "?recursive=1"
+
+            );
+
+
+        if (
+            treeData.truncated
+        ) {
+
+            throw new Error(
+                "GitHub ограничил дерево файлов этого репозитория."
+            );
+
+        }
+
+
+        state.files.clear();
+
+
+        for (
+            const item
+            of treeData.tree
+        ) {
+
+            if (
+                item.type !== "blob"
+            ) {
+
+                continue;
+
+            }
+
+
+            const path =
+                normalizePath(
+                    item.path
+                );
+
+
+            state.files.set(
+
+                path,
+
+                {
+                    path,
+                    sha: item.sha,
+                    size: item.size || 0
+                }
+
+            );
+
+        }
+
+
+        buildFileTree();
+
+
+        drawerStatus.textContent =
+            state.files.size +
+            " файлов";
+
+
+        /*
+            Ищем index.html.
+        */
+
+        let startFile =
+            state.files.get(
+                "index.html"
+            );
+
+
+        /*
+            Если index.html
+            отсутствует в корне,
+            ищем первый HTML.
+        */
+
+        if (!startFile) {
+
+            startFile =
+                [...state.files.values()]
+                    .find(
+                        file =>
+                            /\.(html?|xhtml)$/i
+                                .test(
+                                    file.path
+                                )
+                    );
+
+        }
+
+
+        if (!startFile) {
+
+            throw new Error(
+                "В репозитории нет HTML-файла."
+            );
+
+        }
+
+
+        /*
+            Запускаем сайт.
+        */
+
+        await openHtml(
+            startFile.path
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showError(
+            error.message
+        );
+
+    } finally {
+
+        setLoading(false);
+
+    }
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(
+    message
+) {
+
+    setLoading(false);
+
+    empty.classList.remove(
+        "hidden"
+    );
+
+
+    empty.innerHTML = `
+
+        <strong>
+            Не удалось открыть сайт
+        </strong>
+
+        <span>
+            ${escapeHtml(message)}
+        </span>
+
+    `;
+
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+openButton.addEventListener(
+    "click",
+    loadRepository
+);
+
+
+mobileOpenButton.addEventListener(
+    "click",
+    openUrlModal
+);
+
+
+reloadButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            state.currentRepoUrl
+        ) {
+
+            loadRepository();
+
+        }
+
+    }
+);
+
+
+desktopReloadButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            state.currentRepoUrl
+        ) {
+
+            loadRepository();
+
+        }
+
+    }
+);
+
+
+menuButton.addEventListener(
+    "click",
+    toggleDrawer
+);
+
+
+closeDrawerButton.addEventListener(
+    "click",
+    closeDrawer
+);
+
+
+scrim.addEventListener(
+    "click",
+    closeDrawer
+);
+
+
+closeModalButton.addEventListener(
+    "click",
+    closeFileModal
+);
+
+
+copyButton.addEventListener(
+    "click",
+    copyCurrentFile
+);
+
+
+openFileButton.addEventListener(
+    "click",
+    async () => {
+
+        closeFileModal();
+
+        if (
+            state.currentFile
+        ) {
+
+            await openHtml(
+                state.currentFile
+            );
+
+        }
+
+    }
+);
+
+
+openUrlButton.addEventListener(
+    "click",
+    submitUrlModal
+);
+
+
+cancelUrlButton.addEventListener(
+    "click",
+    closeUrlModal
+);
+
+
+urlModalInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            submitUrlModal();
+
+        }
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeUrlModal();
+
+        }
+
+    }
+);
+
+
+repoInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            loadRepository();
+
+        }
+
+    }
+);
+
+
+/*
+    Навигация внутри сайта.
+*/
+
+window.addEventListener(
+    "message",
+    event => {
+
+        if (
+            !event.data
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.data.type ===
+            "TL_NAVIGATE"
+        ) {
+
+            const path =
+                normalizePath(
+                    event.data.path
+                );
+
+
+            if (
+                state.files.has(path)
+            ) {
+
+                openHtml(path);
+
+            }
+
+        }
+
+    }
+);
+
+
+/*
+    ESC.
+*/
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeDrawer();
+
+            closeFileModal();
+
+            closeUrlModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ?repo=
+========================================================= */
+
+const params =
+    new URLSearchParams(
+        location.search
+    );
+
+
+const repoParameter =
+    params.get("repo");
+
+
+if (
+    repoParameter
+) {
+
+    repoInput.value =
+        repoParameter;
+
+    loadRepository();
+
+}
+
+</script>
+
+</body>
+</html>
