@@ -1,0 +1,408 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Repository</title><style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100%;
+    background: #08080b;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    padding: 30px 16px;
+}
+
+.app {
+    width: 100%;
+    max-width: 720px;
+}
+
+.header {
+    margin-bottom: 22px;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    margin-top: 6px;
+    color: #777783;
+    font-size: 14px;
+}
+
+.repository {
+    margin-top: 14px;
+    display: inline-block;
+    padding: 7px 11px;
+    border: 1px solid #202027;
+    border-radius: 9px;
+    background: #101014;
+    color: #9999a5;
+    font-size: 12px;
+}
+
+.status {
+    margin-bottom: 14px;
+    color: #777783;
+    font-size: 13px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding-bottom: 90px;
+}
+
+.file {
+    width: 100%;
+    border: 1px solid #202027;
+    background: #101014;
+    border-radius: 13px;
+    padding: 15px;
+    cursor: pointer;
+    transition: .18s ease;
+    user-select: none;
+}
+
+.file:hover {
+    border-color: #383843;
+    background: #141419;
+    transform: translateY(-1px);
+}
+
+.file.selected {
+    border-color: #735cff;
+    background: #17141f;
+    box-shadow: 0 0 0 1px rgba(115, 92, 255, .15);
+}
+
+.file-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f1f1f4;
+    word-break: break-word;
+}
+
+.file-path {
+    margin-top: 5px;
+    color: #6e6e79;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.empty {
+    padding: 35px 20px;
+    text-align: center;
+    border: 1px dashed #292930;
+    border-radius: 14px;
+    color: #777783;
+}
+
+.bottom {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 14px 16px;
+    background: linear-gradient(
+        to top,
+        #08080b 65%,
+        transparent
+    );
+}
+
+.open {
+    display: block;
+    width: min(720px, 100%);
+    margin: 0 auto;
+    border: 0;
+    border-radius: 13px;
+    padding: 15px 18px;
+    background: #735cff;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.open:hover {
+    background: #806cff;
+}
+
+.open:disabled {
+    background: #202027;
+    color: #666670;
+    cursor: not-allowed;
+}
+
+.error {
+    padding: 18px;
+    border: 1px solid #39252b;
+    background: #151012;
+    border-radius: 13px;
+    color: #c58b96;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.loading {
+    padding: 30px;
+    text-align: center;
+    color: #777783;
+}
+
+@media (max-width: 500px) {
+    body {
+        padding: 22px 12px;
+    }
+
+    .logo {
+        font-size: 24px;
+    }
+
+    .file {
+        padding: 14px;
+    }
+}
+</style></head><body><div class="app"><div class="header">
+    <div class="logo" id="title">View Repository</div>
+    <div class="subtitle">Выберите HTML версию</div>
+    <div class="repository" id="repository">Загрузка...</div>
+</div>
+
+<div class="status" id="status">
+    Поиск HTML файлов...
+</div>
+
+<div class="list" id="list">
+    <div class="loading">Загрузка репозитория...</div>
+</div>
+
+</div><div class="bottom">
+    <button class="open" id="openButton" disabled>
+        Открыть выбранную версию
+    </button>
+</div><script>
+const list = document.getElementById("list");
+const status = document.getElementById("status");
+const repositoryLabel = document.getElementById("repository");
+const title = document.getElementById("title");
+const openButton = document.getElementById("openButton");
+
+let selectedFile = null;
+let owner = null;
+let repo = null;
+let branch = null;
+
+function getRepositoryInfo() {
+    const hostname = location.hostname;
+
+    if (!hostname.endsWith(".github.io")) {
+        throw new Error(
+            "Этот файл должен быть открыт через GitHub Pages."
+        );
+    }
+
+    owner = hostname.replace(".github.io", "");
+
+    const parts = location.pathname
+        .split("/")
+        .filter(Boolean);
+
+    if (parts.length === 0) {
+        repo = owner + ".github.io";
+    } else {
+        repo = parts[0];
+    }
+
+    return {
+        owner,
+        repo
+    };
+}
+
+async function request(url) {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(
+            "GitHub API вернул ошибку " + response.status
+        );
+    }
+
+    return await response.json();
+}
+
+async function loadRepository() {
+
+    try {
+
+        const info = getRepositoryInfo();
+
+        title.textContent = info.repo;
+        repositoryLabel.textContent =
+            info.owner + "/" + info.repo;
+
+        const repository = await request(
+            "https://api.github.com/repos/" +
+            encodeURIComponent(info.owner) +
+            "/" +
+            encodeURIComponent(info.repo)
+        );
+
+        branch = repository.default_branch;
+
+        const tree = await request(
+            "https://api.github.com/repos/" +
+            encodeURIComponent(info.owner) +
+            "/" +
+            encodeURIComponent(info.repo) +
+            "/git/trees/" +
+            encodeURIComponent(branch) +
+            "?recursive=1"
+        );
+
+        const files = tree.tree
+            .filter(file =>
+                file.type === "blob" &&
+                /\.html?$/i.test(file.path)
+            )
+            .sort((a, b) =>
+                a.path.localeCompare(
+                    b.path,
+                    undefined,
+                    {
+                        numeric: true,
+                        sensitivity: "base"
+                    }
+                )
+            );
+
+        if (files.length === 0) {
+
+            status.textContent = "HTML файлов не найдено.";
+
+            list.innerHTML = `
+                <div class="empty">
+                    В этом репозитории нет HTML файлов.
+                </div>
+            `;
+
+            return;
+        }
+
+        status.textContent =
+            "Найдено HTML файлов: " + files.length;
+
+        list.innerHTML = "";
+
+        files.forEach(file => {
+
+            const item = document.createElement("div");
+
+            item.className = "file";
+
+            const name =
+                file.path.split("/").pop();
+
+            item.innerHTML = `
+                <div class="file-name">
+                    ${escapeHtml(name)}
+                </div>
+
+                <div class="file-path">
+                    ${escapeHtml(file.path)}
+                </div>
+            `;
+
+            item.addEventListener("click", () => {
+
+                document
+                    .querySelectorAll(".file")
+                    .forEach(element =>
+                        element.classList.remove("selected")
+                    );
+
+                item.classList.add("selected");
+
+                selectedFile = file.path;
+
+                openButton.disabled = false;
+            });
+
+            list.appendChild(item);
+        });
+
+    } catch (error) {
+
+        status.textContent = "Не удалось загрузить репозиторий.";
+
+        list.innerHTML = `
+            <div class="error">
+                <b>Ошибка</b><br><br>
+                ${escapeHtml(error.message)}
+                <br><br>
+                Проверь, что файл открыт именно через GitHub Pages
+                и репозиторий является публичным.
+            </div>
+        `;
+    }
+}
+
+function escapeHtml(text) {
+    return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function getFileUrl(path) {
+
+    const encodedPath = path
+        .split("/")
+        .map(part => encodeURIComponent(part))
+        .join("/");
+
+    return (
+        "https://cdn.jsdelivr.net/gh/" +
+        owner +
+        "/" +
+        repo +
+        "@" +
+        branch +
+        "/" +
+        encodedPath
+    );
+}
+
+openButton.addEventListener("click", () => {
+
+    if (!selectedFile) {
+        return;
+    }
+
+    window.location.href =
+        getFileUrl(selectedFile);
+});
+
+loadRepository();
+</script></body>
+</html>
